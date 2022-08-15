@@ -74,7 +74,8 @@ def stitch_animation(image_files, path, params='', fps=animation_fps):
     for file_name in image_files:
         images.append(imageio.v2.imread(file_name))
         image_count += 1
-        print("Done. Added", image_count, "images.")
+
+    print("Done. Added", image_count, "images.")
 
     print("Create animation.")
 
