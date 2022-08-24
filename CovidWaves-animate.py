@@ -277,7 +277,7 @@ if settings['mode'] == 'png':
                     x=0.01,
                     y=0.5,
                     showarrow=False,
-                    text='<b>By Jan Kühn</b><br /><sup>https://yotka.org | @derjaku</sup>',
+                    text='<b>By Jan Kühn</b><br /><sup>https://yotka.org</sup>',
                     xanchor='left',
                     xref='paper',
                     yref='paper',
