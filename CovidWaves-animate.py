@@ -19,7 +19,8 @@ from settings import settings
 #
 
 start = time.time()  # Start time to calculate script running time
-dates_processed = 0  # Create empty list for calculation
+dates_processed = 0  # Create empty variable for calculation
+duration_total = 0  # Create empty variable for calculation
 
 
 #
@@ -178,7 +179,7 @@ if settings['mode'] == 'png':
     for date in dates:
 
         # Set variable to track performance
-        duration_start = time.time()
+        time_start = time.time()
 
         # Convert date to Pandas datetime
         date = pd.to_datetime(date)
@@ -301,11 +302,13 @@ if settings['mode'] == 'png':
 
         # Count dates processed and duration
         dates_processed += 1
-        duration_end = time.time()
+        duration = time.time() - time_start
+        duration_total = duration_total + duration
+        duration_left = ((duration_total / dates_processed) * (len(dates) - dates_processed))
 
-        print("Output saved to", file,
-              "(duration:", str(round(duration_end - duration_start, 1)), "seconds)",
-              dates_processed, "of", len(dates), "(", round(dates_processed / len(dates) * 100, 2), "% )")
+        print(f"Output saved to {file} (duration: {round(duration, 1)} seconds) "
+              f"{dates_processed} of {len(dates)} ({round(dates_processed / len(dates) * 100, 2)}%) "
+              f"left: ~{dt.timedelta(seconds=round(duration_left, 0))}")
 
     print("All images saved.")
 
