@@ -9,40 +9,15 @@ import glob
 import time
 
 #
-# Define some variables for the script
+# Import settings defined in settings.py
 #
 
-set_dates = False  # Use date_start and date_end to limit the dataset?
-date_start = '2022-01-01'  # Start date if 'set_dates' is True
-date_end = '2022-05-01'  # End date if 'set_dates' is True
+from settings import settings
 
-mode = 'png'  # html, png or stitch (manual_path)
-resolution = '10M'  # Resolution for the map: 01M, 03M, 10M, 60M
-metric = 'moving14d_pop'  # Metric to use: moving7d_pop, moving14d_pop, cumulated_pop, cases_pop_weekly, moving4w_pop
-metric_desc = {  # Descriptions for the different metrics
-    'moving7d_pop': 'Moving 7 day average of detected cases per million by NUTS region',
-    'moving14d_pop': 'Moving 14 day average of detected cases per million by NUTS region',
-    'cumulated_pop': 'Cumulated detected cases per million by NUTS region',
-    'cases_pop_weekly': 'Weekly detected cases per million by NUTS region',
-    'moving4w_pop': 'Moving 4 week average of detected weekly cases per million by NUTS region',
-}
-
-animation = True  # Create animation? True or False (just for mode 'png')
-manual_path = '/home/jan/DataViz/Projekte/CovidWaves/export/png/20220814-143236/'  # Path for manual
-animation_fps = 14  # Frames per second
-animation_loops = 1  # Number of loops (0=loop indefinitely)
-
-height = 800  # Height of the images/animation
-width = 1000  # Width of the images/animation
-colorscale = 'dataset'  # Set colorscale based on 'sample' or whole 'dataset'
-coloraxis = False  # Show color axis? True or False
-
-# white-bg, open-street-map, carto-positron, carto-darkmatter, stamen-terrain, stamen-toner, stamen-watercolor
-basemap = 'white-bg'
-
-##
-
+#
 # Set variables to calculate script running time
+#
+
 start = time.time()  # Start time to calculate script running time
 dates_processed = 0  # Create empty list for calculation
 
@@ -64,7 +39,7 @@ def calc_quintiles(df, column):
 
 
 # Stitch images to get an animation
-def stitch_animation(image_files, path, params='', fps=animation_fps):
+def stitch_animation(image_files, path, params='', fps=settings['animation_fps']):
     print("Starting to stitch images together for an animation.")
 
     images = []
@@ -91,7 +66,7 @@ def stitch_animation(image_files, path, params='', fps=animation_fps):
     gif_path = str(path) + '/animation' + file_params + '-fps' + str(fps) + '.gif'
 
     # Create animation
-    imageio.mimsave(gif_path, images, fps=fps, loop=animation_loops)
+    imageio.mimsave(gif_path, images, fps=fps, loop=settings['animation_loops'])
 
     print("Animation saved to", gif_path)
 
@@ -128,11 +103,11 @@ custom_template = {
 print("\nImporting geo data.")
 
 # Get geo data for NUTS regions (level 3)
-file_name = 'data/NUTS_RG_' + resolution + '_2016_4326.geojson'
+file_name = 'data/NUTS_RG_' + settings['resolution'] + '_2016_4326.geojson'
 geo_nuts_level3 = json.load(open(file_name, 'r'))
 
 # Get geo data for countries
-file_name = 'data/CNTR_RG_' + resolution + '_2016_4326.geojson'
+file_name = 'data/CNTR_RG_' + settings['resolution'] + '_2016_4326.geojson'
 geo_countries = json.load(open(file_name, 'r'))
 
 print("Done.")
@@ -146,7 +121,7 @@ print("Done.")
 print("\nStarting import of CSV file.")
 
 # Define string to be added to fór weekly metrics
-append = '-weekly' if metric in ['cases_pop_weekly', 'moving4w_pop'] else ''
+append = '-weekly' if settings['metric'] in ['cases_pop_weekly', 'moving4w_pop'] else ''
 
 # Define file name to be imported
 file = 'data/covid-waves-data-clean' + append + '.csv'
@@ -154,7 +129,7 @@ file = 'data/covid-waves-data-clean' + append + '.csv'
 # Import CSV
 df_raw = pd.read_csv(file,
                      parse_dates=['date'],
-                     usecols=['country', 'nuts_id', 'nuts_name', 'date', metric],
+                     usecols=['country', 'nuts_id', 'nuts_name', 'date', settings['metric']],
                      header=0,
                      )
 
@@ -169,8 +144,8 @@ df = df_raw.copy()
 # If set, reduce data set to requested time frame
 #
 
-if set_dates:
-    df = df[(df['date'] >= date_start) & (df['date'] <= date_end)]
+if settings['set_dates']:
+    df = df[(df['date'] >= settings['date_start']) & (df['date'] <= settings['date_end'])]
 
 ##
 
@@ -178,7 +153,7 @@ if set_dates:
 # Export maps as PNGs if selected mode is PNG
 #
 
-if mode == 'png':
+if settings['mode'] == 'png':
 
     # Create folder
     path = 'export/png/' + str(dt.datetime.now().strftime('%Y%m%d-%H%M%S'))
@@ -187,9 +162,9 @@ if mode == 'png':
 
     image_files = []
 
-    # Calculate quintiles for the colorscale using whole or reduced dataframe
-    df_breaks = df if colorscale == 'sample' else df_raw
-    breaks = calc_quintiles(df_breaks, metric)
+    # Calculate quintiles for the settings['colorscale'] using whole or reduced dataframe
+    df_breaks = df if settings['colorscale'] == 'sample' else df_raw
+    breaks = calc_quintiles(df_breaks, settings['metric'])
 
     print("\nStart plotting.")
 
@@ -223,9 +198,9 @@ if mode == 'png':
         fig = go.Figure(go.Choroplethmapbox(
             geojson=geo_nuts_level3,
             locations=df_plot['nuts_id'],
-            z=df_plot[metric],
+            z=df_plot[settings['metric']],
             zmin=0,
-            zmax=df_breaks[metric].max(),
+            zmax=df_breaks[settings['metric']].max(),
             colorscale=[
                 [0, '#ccc'],
                 [breaks[0.2], '#FFF304'],  # Cadmium Yellow
@@ -241,11 +216,11 @@ if mode == 'png':
 
         fig.update_layout(
             autosize=False,
-            height=height,
-            width=width,
+            height=settings['height'],
+            width=settings['width'],
             mapbox={
                 'center': {'lat': 57.245936, 'lon': 9.274491},  # Set center coordinates of the map
-                'style': basemap,
+                'style': settings['basemap'],
                 'zoom': 3,
                 'layers': [
                     {
@@ -261,7 +236,7 @@ if mode == 'png':
             margin={'r': 3, 't': 3, 'l': 3, 'b': 3},
             template=custom_template,
             title_text='<b>COVID19 waves in Europe</b><br />'
-                       '<sup>' + metric_desc[metric] + '</sup>',
+                       '<sup>' + settings['metric_desc'][settings['metric']] + '</sup>',
             title_x=0.01,
             title_y=0.96,
             coloraxis_colorbar=dict(title=''),
@@ -308,18 +283,18 @@ if mode == 'png':
 
         fig.update_traces(
             marker_line_width=0,  # Width of the NUTS borders
-            showscale=coloraxis,
+            showscale=settings['coloraxis'],
         )
 
         # Define file path and name
         file = str(export_path) + '/' + \
-               date.strftime('%Y-%m-%d') + '-' + \
-               resolution + '-' + \
-               metric + \
-               '.png'
+            date.strftime('%Y-%m-%d') + '-' + \
+            settings['resolution'] + '-' + \
+            settings['metric'] + \
+            '.png'
 
         # Write map to PNG file
-        fig.write_image(file, width=width, height=height)
+        fig.write_image(file, width=settings['width'], height=settings['height'], scale=1)
 
         # Append image to variable for animation
         image_files.append(file)
@@ -340,15 +315,15 @@ if mode == 'png':
 # Create HTML animation if selected mode is HTML
 #
 
-if mode == 'html':
+if settings['mode'] == 'html':
     print("\nConvert date to string for slider")
 
     # Convert date to string for the slider
     df['date_str'] = df['date'].apply(lambda x: str(x)[0:10])
 
     # Calculate quintiles for the colorscale using whole or reduced dataframe
-    df_breaks = df if colorscale == 'sample' else df_raw
-    breaks = calc_quintiles(df_breaks, metric)
+    df_breaks = df if settings['colorscale'] == 'sample' else df_raw
+    breaks = calc_quintiles(df_breaks, settings['metric'])
 
     print("\nStart plotting.")
 
@@ -364,8 +339,8 @@ if mode == 'html':
         df,
         locations='nuts_id',
         geojson=geo_nuts_level3,
-        color=metric,
-        range_color=[0, df_breaks[metric].max()],
+        color=settings['metric'],
+        range_color=[0, df_breaks[settings['metric']].max()],
         color_continuous_scale=[
             [0, '#ccc'],
             [breaks[0.2], '#FFF304'],  # Cadmium Yellow
@@ -377,19 +352,19 @@ if mode == 'html':
             [breaks[0.99], '#733381'],  # Maximum Purple
             [1, '#000000']
         ],
-        mapbox_style=basemap,
+        mapbox_style=settings['basemap'],
         center={'lat': 57.245936, 'lon': 9.274491},
         zoom=3,
         template=custom_template,
         animation_frame='date_str',
         animation_group='nuts_id',
-        width=width,
-        height=height,
+        width=settings['width'],
+        height=settings['height'],
     )
 
     fig.update_layout(
         title_text='<b>COVID19 waves in Europe</b><br />'
-                   '<sup>' + metric_desc[metric] + '</sup>',
+                   '<sup>' + settings['metric_desc'][settings['metric']] + '</sup>',
         title_x=0.01,
         title_y=0.96,
         margin={'r': 0, 't': 0, 'l': 0, 'b': 0},
@@ -403,8 +378,7 @@ if mode == 'html':
                 y=0,
                 showarrow=False,
                 text='<b>Data:</b> COVID19-European-Regional-Tracker, <b>Graph:</b> Jan Kühn',
-            ),
-        ]
+            )]
     )
 
     fig.update_traces(
@@ -425,8 +399,8 @@ if mode == 'html':
 # Create GIF file with animation
 #
 
-if animation and mode == 'png':
-    stitch_animation(image_files, export_path, params=[resolution, metric])
+if settings['animation'] and settings['mode'] == 'png':
+    stitch_animation(image_files, export_path, params=[settings['resolution'], settings['metric']])
 
 ##
 
@@ -434,14 +408,14 @@ if animation and mode == 'png':
 # If selected, create animation from files in manually defined directory
 #
 
-if mode == 'stitch':
+if settings['mode'] == 'stitch':
     # Create folder
     path = 'export/png/' + str(dt.datetime.now().strftime('%Y%m%d-%H%M%S'))
     export_path = pathlib.Path(path)
     export_path.mkdir(parents=True, exist_ok=True)
 
     # Define path to look for PNG files
-    search_path = manual_path + '/*.png'
+    search_path = settings['manual_path'] + '/*.png'
     image_files = glob.glob(search_path)
 
     # Sort files
