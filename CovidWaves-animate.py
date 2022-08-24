@@ -39,7 +39,7 @@ def calc_quintiles(df, column):
 
 
 # Stitch images to get an animation
-def stitch_animation(image_files, path, params='', fps=settings['animation_fps']):
+def stitch_animation(image_files, path, params=[], fps=settings['animation_fps']):
     print("Starting to stitch images together for an animation.")
 
     images = []
