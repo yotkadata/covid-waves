@@ -216,9 +216,10 @@ if settings['mode'] == 'png':
         ))
 
         fig.update_layout(
-            autosize=False,
             height=settings['height'],
             width=settings['width'],
+            xaxis_autorange=False,
+            yaxis_autorange=False,
             mapbox={
                 'center': {'lat': 57.245936, 'lon': 9.274491},  # Set center coordinates of the map
                 'style': settings['basemap'],
@@ -253,6 +254,8 @@ if settings['mode'] == 'png':
                 dict(
                     xref='paper',
                     yref='paper',
+                    yanchor='bottom',
+                    xanchor='right',
                     x=0.99,
                     y=date_position,
                     showarrow=False,
