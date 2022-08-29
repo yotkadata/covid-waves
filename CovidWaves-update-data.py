@@ -184,7 +184,8 @@ interpolate = ['cases']
 
 # Loop through columns and interpolate missing values
 for fill_col in interpolate:
-    covid_calc[fill_col] = covid_calc.groupby('nuts_id').apply(lambda x: x[[fill_col]].interpolate(method='linear'))
+    covid_calc[fill_col] = covid_calc.groupby('nuts_id')\
+        .apply(lambda x: x[[fill_col]].interpolate(method='linear', limit_area='inside'))
 
 print("Done.")
 
