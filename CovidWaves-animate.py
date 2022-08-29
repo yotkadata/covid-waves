@@ -5,22 +5,23 @@ import datetime as dt
 import json
 import imageio
 import pathlib
-import glob
 import time
+from PIL import Image
 
 #
-# Import settings defined in settings.py
+# Import configuration defined in settings.py
 #
 
-from settings import settings
+from settings import conf
 
 #
-# Set variables to calculate script running time
+# Set variables to calculate script running time and other tasks
 #
 
 start = time.time()  # Start time to calculate script running time
 dates_processed = 0  # Create empty variable for calculation
 duration_total = 0  # Create empty variable for calculation
+now = dt.datetime.now()  # Current datetime to be used for folder names etc.
 
 
 #
@@ -28,32 +29,31 @@ duration_total = 0  # Create empty variable for calculation
 #
 
 # Calculate quintiles for the colorscale
-def calc_quintiles(df, column):
+def calc_quintiles(df_q, column_q):
     # Steps to be used as break points
-    steps = [0, 0.2, 0.4, 0.6, 0.8, 0.9, 0.95, 0.99, 1]
-    breaks = {}
+    steps_q = [0, 0.2, 0.4, 0.6, 0.8, 0.9, 0.95, 0.99, 1]
+    breaks_q = {}
 
-    for step in range(len(steps)):
-        breaks[steps[step]] = (df[column].quantile(steps[step]) / df[column].max()).round(3)
+    for step in range(len(steps_q)):
+        breaks_q[steps_q[step]] = (df_q[column_q].quantile(steps_q[step]) / df_q[column_q].max()).round(3)
 
-    return breaks
+    return breaks_q
 
 
 # Stitch images to get an animation
-def stitch_animation(image_files, path, params=[], fps=settings['animation_fps']):
-    print("Starting to stitch images together for an animation.")
+def stitch_animation(file_list, anim_path, animation_format=conf['animation_format'],
+                     fps=conf['animation_fps'], loop=conf['animation_loops'],
+                     params=None):
+    if params is None:
+        params = []
 
-    images = []
-    image_count = 0
+    print("\nStarting to stitch images together for an animation.")
 
-    # Loop through image files and add them to 'images'
-    for file_name in image_files:
-        images.append(imageio.v2.imread(file_name))
-        image_count += 1
-
-    print("Done. Added", image_count, "images.")
-
-    print("Create animation.")
+    # Force webp format in case images are in webp
+    if conf['animation_format'] == 'gif':
+        if pathlib.Path(file_list[0]).suffix == '.webp':
+            animation_format = 'webp'
+            print("NOTICE: Animation format set to webp because images are in webp.")
 
     # Join parameters to be added to file name
     try:
@@ -64,12 +64,45 @@ def stitch_animation(image_files, path, params=[], fps=settings['animation_fps']
         file_params = ''
 
     # Create path and file name for animation
-    gif_path = str(path) + '/animation' + file_params + '-fps' + str(fps) + '.gif'
+    anim_path = str(anim_path) + '/' + \
+                str(now.strftime('%Y%m%d-%H%M%S')) + \
+                '-anim' + file_params + \
+                '-fps' + str(fps) + \
+                '.' + animation_format
 
-    # Create animation
-    imageio.mimsave(gif_path, images, fps=fps, loop=settings['animation_loops'])
+    images = []
+    image_count = 0
 
-    print("Animation saved to", gif_path)
+    if animation_format == 'gif':
+        # Loop through image files and add them to 'images'
+        for anim_file_name in file_list:
+            images.append(imageio.v2.imread(anim_file_name))
+            image_count += 1
+
+        print("Done. Added", image_count, "images.")
+
+        print("Create animation.")
+
+        # Create animation
+        imageio.mimsave(anim_path, images, fps=fps, loop=loop)
+
+    if animation_format == 'webp':
+        # Loop through image files and add them to 'images'
+        for img in file_list:
+            images.append(Image.open(img))
+            image_count += 1
+
+        # Separate the first image to later append the rest
+        img = images[0]
+
+        # Calculate duration based on the frame rate
+        fps_to_duration = int(round(1 / fps * 1000, 0))
+
+        # Create animation
+        img.save(anim_path, save_all=True, append_images=images[1:], duration=fps_to_duration, loop=loop,
+                 optimize=False, disposal=2, lossless=True)
+
+    print("Animation saved to", anim_path)
 
 
 ##
@@ -101,17 +134,18 @@ custom_template = {
 # Import GeoJson files
 #
 
-print("\nImporting geo data.")
+if conf['mode'] != 'stitch':
+    print("\nImporting geo data.")
 
-# Get geo data for NUTS regions (level 3)
-file_name = 'data/NUTS_RG_' + settings['resolution'] + '_2016_4326.geojson'
-geo_nuts_level3 = json.load(open(file_name, 'r'))
+    # Get geo data for NUTS regions (level 3)
+    file_name = 'data/NUTS_RG_' + conf['resolution'] + '_2016_4326.geojson'
+    geo_nuts_level3 = json.load(open(file_name, 'r'))
 
-# Get geo data for countries
-file_name = 'data/CNTR_RG_' + settings['resolution'] + '_2016_4326.geojson'
-geo_countries = json.load(open(file_name, 'r'))
+    # Get geo data for countries
+    file_name = 'data/CNTR_RG_' + conf['resolution'] + '_2016_4326.geojson'
+    geo_countries = json.load(open(file_name, 'r'))
 
-print("Done.")
+    print("Done.")
 
 ##
 
@@ -119,25 +153,26 @@ print("Done.")
 # Import Covid19 data from CSV
 #
 
-print("\nStarting import of CSV file.")
+if conf['mode'] != 'stitch':
+    print("\nStarting import of CSV file.")
 
-# Define string to be added to fór weekly metrics
-append = '-weekly' if settings['metric'] in ['cases_pop_weekly', 'moving4w_pop'] else ''
+    # Define string to be added to fór weekly metrics
+    append = '-weekly' if conf['metric'] in ['cases_pop_weekly', 'moving4w_pop'] else ''
 
-# Define file name to be imported
-file = 'data/covid-waves-data-clean' + append + '.csv'
+    # Define file name to be imported
+    file = 'data/covid-waves-data-clean' + append + '.csv'
 
-# Import CSV
-df_raw = pd.read_csv(file,
-                     parse_dates=['date'],
-                     usecols=['country', 'nuts_id', 'nuts_name', 'date', settings['metric']],
-                     header=0,
-                     )
+    # Import CSV
+    df_raw = pd.read_csv(file,
+                         parse_dates=['date'],
+                         usecols=['country', 'nuts_id', 'nuts_name', 'date', conf['metric']],
+                         header=0,
+                         )
 
-print("File imported:", file)
+    print("File imported:", file)
 
-# Create a copy of the dataframe to work with
-df = df_raw.copy()
+    # Create a copy of the dataframe to work with
+    df = df_raw.copy()
 
 ##
 
@@ -145,29 +180,28 @@ df = df_raw.copy()
 # If set, reduce data set to requested time frame
 #
 
-if settings['set_dates']:
-    df = df[(df['date'] >= settings['date_start']) & (df['date'] <= settings['date_end'])]
+if conf['mode'] != 'stitch' and conf['set_dates']:
+    df = df[(df['date'] >= conf['date_start']) & (df['date'] <= conf['date_end'])]
 
 ##
 
 #
-# Export maps as PNGs if selected mode is PNG
+# Export maps as images if selected mode is 'image'
 #
 
-if settings['mode'] == 'png':
+if conf['mode'] == 'image':
 
     # Create folder
-    path = 'export/png/' + str(dt.datetime.now().strftime('%Y%m%d-%H%M%S'))
-    export_path = pathlib.Path(path)
+    export_path = pathlib.Path('export/image/' + str(now.strftime('%Y%m%d-%H%M%S')))
     export_path.mkdir(parents=True, exist_ok=True)
 
     image_files = []
 
-    # Calculate quintiles for the settings['colorscale'] using whole or reduced dataframe
-    df_breaks = df if settings['colorscale'] == 'sample' else df_raw
-    breaks = calc_quintiles(df_breaks, settings['metric'])
+    # Calculate quintiles for the conf['colorscale'] using whole or reduced dataframe
+    df_breaks = df if conf['colorscale'] == 'sample' else df_raw
+    breaks = calc_quintiles(df_breaks, conf['metric'])
 
-    print("\nStart plotting.")
+    print("\nStart plotting.\n")
 
     # Get all unique dates and sort them
     dates = df['date'].sort_values().unique()
@@ -199,9 +233,9 @@ if settings['mode'] == 'png':
         fig = go.Figure(go.Choroplethmapbox(
             geojson=geo_nuts_level3,
             locations=df_plot['nuts_id'],
-            z=df_plot[settings['metric']],
+            z=df_plot[conf['metric']],
             zmin=0,
-            zmax=df_breaks[settings['metric']].max(),
+            zmax=df_breaks[conf['metric']].max(),
             colorscale=[
                 [0, '#ccc'],
                 [breaks[0.2], '#FFF304'],  # Cadmium Yellow
@@ -216,13 +250,13 @@ if settings['mode'] == 'png':
         ))
 
         fig.update_layout(
-            height=settings['height'],
-            width=settings['width'],
+            height=conf['height'],
+            width=conf['width'],
             xaxis_autorange=False,
             yaxis_autorange=False,
             mapbox={
                 'center': {'lat': 57.245936, 'lon': 9.274491},  # Set center coordinates of the map
-                'style': settings['basemap'],
+                'style': conf['basemap'],
                 'zoom': 3,
                 'layers': [
                     {
@@ -238,7 +272,7 @@ if settings['mode'] == 'png':
             margin={'r': 3, 't': 3, 'l': 3, 'b': 3},
             template=custom_template,
             title_text='<b>COVID19 waves in Europe</b><br />'
-                       '<sup>' + settings['metric_desc'][settings['metric']] + '</sup>',
+                       '<sup>' + conf['metric_desc'][conf['metric']] + '</sup>',
             title_x=0.01,
             title_y=0.96,
             coloraxis_colorbar=dict(title=''),
@@ -249,12 +283,12 @@ if settings['mode'] == 'png':
                     x=0.01,
                     y=0,
                     showarrow=False,
-                    text='<b>Data:</b> COVID19-European-Regional-Tracker, <b>Graph:</b> Jan Kühn',
+                    text='<b>Data:</b> COVID19-European-Regional-Tracker, <b>Graph:</b> Jan Kühn (https://yotka.org)',
                 ),
                 dict(
                     xref='paper',
                     yref='paper',
-                    yanchor='bottom',
+                    yanchor='top',
                     xanchor='right',
                     x=0.99,
                     y=date_position,
@@ -287,18 +321,18 @@ if settings['mode'] == 'png':
 
         fig.update_traces(
             marker_line_width=0,  # Width of the NUTS borders
-            showscale=settings['coloraxis'],
+            showscale=conf['coloraxis'],
         )
 
         # Define file path and name
         file = str(export_path) + '/' + \
-            date.strftime('%Y-%m-%d') + '-' + \
-            settings['resolution'] + '-' + \
-            settings['metric'] + \
-            '.png'
+               date.strftime('%Y-%m-%d') + '-' + \
+               conf['resolution'] + '-' + \
+               conf['metric'] + \
+               '.' + conf['image_format']
 
-        # Write map to PNG file
-        fig.write_image(file, width=settings['width'], height=settings['height'], scale=1)
+        # Write map to image file
+        fig.write_image(file, width=conf['width'], height=conf['height'], scale=1)
 
         # Append image to variable for animation
         image_files.append(file)
@@ -313,7 +347,18 @@ if settings['mode'] == 'png':
               f"{dates_processed} of {len(dates)} ({round(dates_processed / len(dates) * 100, 2)}%) "
               f"left: ~{dt.timedelta(seconds=round(duration_left, 0))}")
 
-    print("All images saved.")
+    print("\nAll images saved.")
+
+    #
+    # Create animation
+    #
+
+    if conf['animation']:
+        # Create folder
+        export_path = pathlib.Path('export/animation/')
+        export_path.mkdir(parents=True, exist_ok=True)
+
+        stitch_animation(image_files, export_path, params=[conf['resolution'], conf['metric']])
 
 ##
 
@@ -321,15 +366,15 @@ if settings['mode'] == 'png':
 # Create HTML animation if selected mode is HTML
 #
 
-if settings['mode'] == 'html':
+if conf['mode'] == 'html':
     print("\nConvert date to string for slider")
 
     # Convert date to string for the slider
     df['date_str'] = df['date'].apply(lambda x: str(x)[0:10])
 
     # Calculate quintiles for the colorscale using whole or reduced dataframe
-    df_breaks = df if settings['colorscale'] == 'sample' else df_raw
-    breaks = calc_quintiles(df_breaks, settings['metric'])
+    df_breaks = df if conf['colorscale'] == 'sample' else df_raw
+    breaks = calc_quintiles(df_breaks, conf['metric'])
 
     print("\nStart plotting.")
 
@@ -345,8 +390,8 @@ if settings['mode'] == 'html':
         df,
         locations='nuts_id',
         geojson=geo_nuts_level3,
-        color=settings['metric'],
-        range_color=[0, df_breaks[settings['metric']].max()],
+        color=conf['metric'],
+        range_color=[0, df_breaks[conf['metric']].max()],
         color_continuous_scale=[
             [0, '#ccc'],
             [breaks[0.2], '#FFF304'],  # Cadmium Yellow
@@ -358,19 +403,19 @@ if settings['mode'] == 'html':
             [breaks[0.99], '#733381'],  # Maximum Purple
             [1, '#000000']
         ],
-        mapbox_style=settings['basemap'],
+        mapbox_style=conf['basemap'],
         center={'lat': 57.245936, 'lon': 9.274491},
         zoom=3,
         template=custom_template,
         animation_frame='date_str',
         animation_group='nuts_id',
-        width=settings['width'],
-        height=settings['height'],
+        width=conf['width'],
+        height=conf['height'],
     )
 
     fig.update_layout(
         title_text='<b>COVID19 waves in Europe</b><br />'
-                   '<sup>' + settings['metric_desc'][settings['metric']] + '</sup>',
+                   '<sup>' + conf['metric_desc'][conf['metric']] + '</sup>',
         title_x=0.01,
         title_y=0.96,
         margin={'r': 0, 't': 0, 'l': 0, 'b': 0},
@@ -402,33 +447,23 @@ if settings['mode'] == 'html':
 ##
 
 #
-# Create GIF file with animation
-#
-
-if settings['animation'] and settings['mode'] == 'png':
-    stitch_animation(image_files, export_path, params=[settings['resolution'], settings['metric']])
-
-##
-
-#
 # If selected, create animation from files in manually defined directory
 #
 
-if settings['mode'] == 'stitch':
+if conf['mode'] == 'stitch':
     # Create folder
-    path = 'export/png/' + str(dt.datetime.now().strftime('%Y%m%d-%H%M%S'))
-    export_path = pathlib.Path(path)
+    export_path = pathlib.Path('export/animation/')
     export_path.mkdir(parents=True, exist_ok=True)
 
-    # Define path to look for PNG files
-    search_path = settings['manual_path'] + '/*.png'
-    image_files = glob.glob(search_path)
+    # Define path to look for image files
+    search_path = conf['manual_path'] + '/*'
+    image_files = list(pathlib.Path(conf['manual_path']).glob('*.*'))
 
     # Sort files
     image_files.sort()
 
     # Create animation
-    stitch_animation(image_files, path)
+    stitch_animation(image_files, export_path)
 
 ##
 
@@ -442,9 +477,8 @@ end = time.time()
 # Subtract start time from end time
 total_time = end - start
 
-print("Script running time: " + str(round(total_time, 2)) + " seconds (" + str(
-    round(total_time / 60, 2)) + " minutes)")
+print(f"\nScript running time: {round(total_time, 2)} seconds ({round(total_time / 60, 2)} minutes)")
 
 if dates_processed:
-    print(dates_processed, "days have been processed. That's", round(total_time / dates_processed, 2),
-          "seconds per day.")
+    print(f"{dates_processed} days have been processed. "
+          f"That's {round(total_time / dates_processed, 2)} seconds per day.")

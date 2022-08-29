@@ -2,12 +2,13 @@
 # Define some variables for the script
 #
 
-settings = {
+conf = {
     'set_dates': False,  # Use date_start and date_end to limit the dataset?
     'date_start': '2022-01-01',  # Start date if 'set_dates' is True
     'date_end': '2022-02-01',  # End date if 'set_dates' is True
 
-    'mode': 'png',  # html, png or stitch (manual_path)
+    'mode': 'image',  # image, html, or stitch (manual_path)
+    'image_format': 'png',  # png or webp
     'resolution': '10M',  # Resolution for the map: 01M, 03M, 10M, 60M
     'metric': 'moving14d_pop',  # Metric to use: moving7d_pop, moving14d_pop, cumulated_pop, cases_pop_weekly, moving4w_pop
     'metric_desc': {  # Descriptions for the different metrics
@@ -18,7 +19,8 @@ settings = {
         'moving4w_pop': 'Moving 4 week average of detected weekly cases per million by NUTS region',
     },
 
-    'animation': True,  # Create animation? True or False (just for mode 'png')
+    'animation': True,  # Create animation? True or False (just for mode 'image')
+    'animation_format': 'webp',  # File format of the animation (gif or webp). gif only works with png.
     'manual_path': '',  # Path for manual
     'animation_fps': 7,  # Frames per second
     'animation_loops': 1,  # Number of loops (0=loop indefinitely)
