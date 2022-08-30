@@ -109,12 +109,19 @@ print("Done.")
 
 ##
 
+# Remove NUTS regions irrelevant to the map
+
+print("\nRemove NUTS regions irrelevant to the map.")
+
+remove_nuts = ['ES707', 'ES709', 'PT300', 'FRY10', 'FRY20', 'FRY30', 'FRY40', 'FRY50']
+covid_clean = covid_clean[~covid_clean['nuts_id'].isin(remove_nuts)]
+
+print(f"Removed {len(remove_nuts)} NUTS regions, leaving {len(covid_clean)} rows.")
+
+
 # Remove outliers in each NUTS id group as there are many because of data corrections
 
 print("\nRemove extreme outliers for each NUTS group.")
-
-# Remove La Palma NUTS region because it is irrelevant to the map but has extraordinary values
-covid_clean = covid_clean[covid_clean['nuts_id'] != 'ES707']
 
 df_out = covid_clean.copy()
 
