@@ -113,6 +113,9 @@ print("Done.")
 
 print("\nRemove extreme outliers for each NUTS group.")
 
+# Remove La Palma NUTS region because it is irrelevant to the map but has extraordinary values
+covid_clean = covid_clean[covid_clean['nuts_id'] != 'ES707']
+
 df_out = covid_clean.copy()
 
 # Calculate cases per population and exclude values below zero
