@@ -87,7 +87,8 @@ length_before = len(covid_clean)
 covid_clean = covid_clean[covid_clean['cases'] >= 0]
 length_after = len(covid_clean)
 
-print("\nRemoved", length_before - length_after, "rows with values below 0.\n", length_after, "rows left.")
+print(f"\nRemoved {length_before - length_after} rows with values below 0."
+      f"\n{length_after} rows left.")
 
 ##
 
@@ -106,22 +107,36 @@ for y in error_years:
 
 print("Done.")
 
+##
 
-# Manually remove some detected outliers
+# Remove outliers in each NUTS id group as there are many because of data corrections
 
-print("\nRemove some outliers.")
+print("\nRemove extreme outliers for each NUTS group.")
 
-# Define outliers to be removed
-outliers = dict(ITH10=['2020-10-08', '2021-03-22'], ITF21=['2021-05-22'], ITF22=['2021-05-23'],
-                RO126=['2022-02-21', '2022-02-22', '2022-02-23'], ITF63=['2022-06-17', '2022-06-18'],
-                ITF61=['2022-06-17', '2022-06-18'], EL53=['2020-05-03'], CH031=['2022-06-20'])
+df_out = covid_clean.copy()
 
-# Loop through outliers to remove them
-for nuts_id in outliers:
-    covid_clean = covid_clean.drop(
-        covid_clean[(covid_clean['nuts_id'] == nuts_id) & (covid_clean['date'].isin(outliers[nuts_id]))].index)
+# Calculate cases per population and exclude values below zero
+df_out['cases_pop'] = df_out['cases'] / df_out['population'] * 10000
+df_out = df_out[df_out['cases_pop'] >= 0]
 
-print("Done.")
+# Define outliers in a new column
+# (1) First create a new column grouping by NUTS and working on cases_pop.
+# (2) Then calculate the difference of each days' value to the mean of a rolling window of 45 days before and after
+#     that date. That way we get outliers in that timeframe.
+# (3) Lastly exclude all rows whose calculated value is more than five times the standard deviation for that
+#     timeframe, i.e. we only catch extreme outliers.
+df_out['is_outlier'] = df_out.groupby('nuts_id')['cases_pop'] \
+    .transform(lambda x: (x - x.rolling(120, min_periods=15, center=True).mean()).abs()
+                         > 5 * x.rolling(120, min_periods=15, center=True).std())
+
+# Include only outlier rows with more than 100 cases per million population
+df_out = df_out[df_out['is_outlier'] & (df_out['cases_pop'] >= 100)]
+
+covid_clean = covid_clean[~covid_clean.index.isin(df_out.index)]
+
+print(f"Removed {len(df_out)} extreme outliers leaving {len(covid_clean)} rows.")
+
+##
 
 # Sort dataframe
 covid_clean = covid_clean.sort_values(['nuts_id', 'date'])
