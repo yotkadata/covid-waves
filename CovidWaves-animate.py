@@ -214,7 +214,7 @@ if conf['mode'] == 'image':
 
     # Calculate quintiles for the conf['colorscale'] using whole or reduced dataframe
     df_breaks = df if conf['colorscale'] == 'sample' else df_raw
-    breaks = calc_quantiles(df_breaks, conf['metric'])
+    breaks = calc_quantiles(df_breaks, conf['metric'], normalized=True)
 
     print("\nStart plotting.\n")
 
@@ -356,7 +356,7 @@ if conf['mode'] == 'image':
             # Create shapes
             for color in colors:
                 # https://plotly.com/python/reference/layout/shapes/
-                shapes += [go.layout.Shape(
+                fig.add_shape(go.layout.Shape(
                     type='rect',
                     fillcolor=color,
                     xref='paper',
@@ -366,7 +366,7 @@ if conf['mode'] == 'image':
                     x1=left + width,
                     y1=top - (i + 1) * height,
                     line=dict(width=0),
-                )]
+                ))
                 i += 1
 
             # Create annotations using not normalized break points
@@ -376,9 +376,10 @@ if conf['mode'] == 'image':
             i = 0
 
             for step in breaks_legend:
-                text = 'No data' if breaks_legend[step] == -1 else breaks_legend[step]
-                # TODO: For some reason values for -1 and 0 don't show in the exported image.
-                annotations += dict(
+                text = 'No data'  if breaks_legend[step] == -1 else breaks_legend[step]
+
+                # https://plotly.com/python/reference/layout/annotations/
+                fig.add_annotation(dict(
                     xref='paper',
                     yref='paper',
                     yanchor='middle',
@@ -387,14 +388,8 @@ if conf['mode'] == 'image':
                     y=center-i*height,
                     showarrow=False,
                     text=text,
-                ),
+                ))
                 i += 1
-
-            # Add shapes and annotations to the figure
-            fig.update_layout(
-                shapes=shapes,
-                annotations=annotations,
-            )
 
         # Define file path and name
         file = str(export_path) + '/' + \
