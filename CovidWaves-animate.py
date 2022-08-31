@@ -252,15 +252,15 @@ if conf['mode'] == 'image':
             zmin=0,
             zmax=df_breaks[conf['metric']].max(),
             colorscale=[
-                [0, '#f8f8f8'],
-                [breaks[0.2], '#FFF304'],  # Cadmium Yellow
-                [breaks[0.4], '#FFAC00'],  # Chrome Yellow
-                [breaks[0.6], '#FF4654'],  # Sunburnt Cyclops
-                [breaks[0.8], '#E71827'],  # Pigment Red
-                [breaks[0.9], '#C064E0'],
-                [breaks[0.95], '#9C51B6'],  # Purple Plum
-                [breaks[0.99], '#733381'],  # Maximum Purple
-                [1, '#000000']
+                [0, conf['colors'][0]],
+                [breaks[0.2], conf['colors'][1]],
+                [breaks[0.4], conf['colors'][2]],
+                [breaks[0.6], conf['colors'][3]],
+                [breaks[0.8], conf['colors'][4]],
+                [breaks[0.9], conf['colors'][5]],
+                [breaks[0.95], conf['colors'][6]],
+                [breaks[0.99], conf['colors'][7]],
+                [1, conf['colors'][8]]
             ],
         ))
 
@@ -348,13 +348,11 @@ if conf['mode'] == 'image':
             height = 0.04
             center = top - height / 2
 
-            # Define colors to be used in the legend
-            colors = ['#f8f8f8', '#FFF304', '#FFAC00', '#FF4654', '#E71827', '#C064E0', '#9C51B6', '#733381', '#000000']
             shapes = []
             i = 0
 
             # Create shapes
-            for color in colors:
+            for color in conf['colors']:
                 # https://plotly.com/python/reference/layout/shapes/
                 fig.add_shape(go.layout.Shape(
                     type='rect',
@@ -376,7 +374,7 @@ if conf['mode'] == 'image':
             i = 0
 
             for step in breaks_legend:
-                text = 'No data'  if breaks_legend[step] == -1 else breaks_legend[step]
+                text = 'No data' if breaks_legend[step] == -1 else breaks_legend[step]
 
                 # https://plotly.com/python/reference/layout/annotations/
                 fig.add_annotation(dict(
@@ -460,15 +458,15 @@ if conf['mode'] == 'html':
         color=conf['metric'],
         range_color=[0, df_breaks[conf['metric']].max()],
         color_continuous_scale=[
-            [0, '#ccc'],
-            [breaks[0.2], '#FFF304'],  # Cadmium Yellow
-            [breaks[0.4], '#FFAC00'],  # Chrome Yellow
-            [breaks[0.6], '#FF4654'],  # Sunburnt Cyclops
-            [breaks[0.8], '#E71827'],  # Pigment Red
-            [breaks[0.9], '#C064E0'],
-            [breaks[0.95], '#9C51B6'],  # Purple Plum
-            [breaks[0.99], '#733381'],  # Maximum Purple
-            [1, '#000000']
+            [0, conf['colors'][0]],
+            [breaks[0.2], conf['colors'][1]],
+            [breaks[0.4], conf['colors'][2]],
+            [breaks[0.6], conf['colors'][3]],
+            [breaks[0.8], conf['colors'][4]],
+            [breaks[0.9], conf['colors'][5]],
+            [breaks[0.95], conf['colors'][6]],
+            [breaks[0.99], conf['colors'][7]],
+            [1, conf['colors'][8]]
         ],
         mapbox_style=conf['basemap'],
         center={'lat': 57.245936, 'lon': 9.274491},

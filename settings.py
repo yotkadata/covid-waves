@@ -32,6 +32,9 @@ conf = {
     'coloraxis': False,  # Show color axis? True or False
     'legend': True,  # Show legend based on calculated break points? True or False
 
+    # 9 colors to be used to represent values
+    'colors': ['#f8f8f8', '#FFF304', '#FFAC00', '#FF4654', '#E71827', '#C064E0', '#9C51B6', '#733381', '#000000'],
+
     # white-bg, open-street-map, carto-positron, carto-darkmatter, stamen-terrain, stamen-toner, stamen-watercolor
     'basemap': 'white-bg',
 }
