@@ -29,13 +29,28 @@ now = dt.datetime.now()  # Current datetime to be used for folder names etc.
 #
 
 # Calculate quintiles for the colorscale
-def calc_quintiles(df_q, column_q):
+def calc_quantiles(df_q, column_q, normalized=True, base=5):
     # Steps to be used as break points
-    steps_q = [0, 0.2, 0.4, 0.6, 0.8, 0.9, 0.95, 0.99, 1]
+    steps = [0, 0.2, 0.4, 0.6, 0.8, 0.9, 0.95, 0.99, 1]
     breaks_q = {}
 
-    for step in range(len(steps_q)):
-        breaks_q[steps_q[step]] = (df_q[column_q].quantile(steps_q[step]) / df_q[column_q].max()).round(3)
+    for step in range(len(steps)):
+        # Calculate quantiles based on the steps defined above
+        breaks_q[steps[step]] = df_q[column_q].quantile(steps[step])
+
+        # Round to next integer for low values (method from https://stackoverflow.com/a/2272174)
+        if breaks_q[steps[step]] < (1.5 * base):
+            breaks_q[steps[step]] = round(df_q[column_q].quantile(steps[step]))
+        # Round to next base for higher values
+        if (1.5 * base) <= breaks_q[steps[step]] < (10 * base):
+            breaks_q[steps[step]] = base * round(df_q[column_q].quantile(steps[step]) / base)
+        # Round to twice the base for very high values
+        if breaks_q[steps[step]] >= 10 * base:
+            breaks_q[steps[step]] = (2 * base) * round(df_q[column_q].quantile(steps[step]) / (2 * base))
+
+        # Normalize to values between 0 and 1 if selected
+        if normalized:
+            breaks_q[steps[step]] = (breaks_q[steps[step]] / df_q[column_q].max()).round(3)
 
     return breaks_q
 
@@ -199,7 +214,7 @@ if conf['mode'] == 'image':
 
     # Calculate quintiles for the conf['colorscale'] using whole or reduced dataframe
     df_breaks = df if conf['colorscale'] == 'sample' else df_raw
-    breaks = calc_quintiles(df_breaks, conf['metric'])
+    breaks = calc_quantiles(df_breaks, conf['metric'])
 
     print("\nStart plotting.\n")
 
@@ -237,7 +252,7 @@ if conf['mode'] == 'image':
             zmin=0,
             zmax=df_breaks[conf['metric']].max(),
             colorscale=[
-                [0, '#ccc'],
+                [0, '#f8f8f8'],
                 [breaks[0.2], '#FFF304'],  # Cadmium Yellow
                 [breaks[0.4], '#FFAC00'],  # Chrome Yellow
                 [breaks[0.6], '#FF4654'],  # Sunburnt Cyclops
@@ -374,7 +389,7 @@ if conf['mode'] == 'html':
 
     # Calculate quintiles for the colorscale using whole or reduced dataframe
     df_breaks = df if conf['colorscale'] == 'sample' else df_raw
-    breaks = calc_quintiles(df_breaks, conf['metric'])
+    breaks = calc_quantiles(df_breaks, conf['metric'])
 
     print("\nStart plotting.")
 
