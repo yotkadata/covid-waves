@@ -10,8 +10,9 @@ conf = {
     'mode': 'image',  # image, html, or stitch (manual_path)
     'image_format': 'png',  # png or webp
     'resolution': '10M',  # Resolution for the map: 01M, 03M, 10M, 60M
-    'metric': 'moving14d_pop',  # Metric to use: moving7d_pop, moving14d_pop, cumulated_pop, cases_pop_weekly, moving4w_pop
+    'metric': 'moving14d_pop',  # Metric to use: see metric_desc
     'metric_desc': {  # Descriptions for the different metrics
+        'cases_pop': 'Daily detected cases per million by NUTS region',
         'moving7d_pop': 'Moving 7 day average of detected cases per million by NUTS region',
         'moving14d_pop': 'Moving 14 day average of detected cases per million by NUTS region',
         'cumulated_pop': 'Cumulated detected cases per million by NUTS region',
@@ -29,6 +30,7 @@ conf = {
     'width': 1000,  # Width of the images/animation
     'colorscale': 'dataset',  # Set colorscale based on 'sample' or whole 'dataset'
     'coloraxis': False,  # Show color axis? True or False
+    'legend': True,  # Show legend based on calculated break points? True or False
 
     # white-bg, open-street-map, carto-positron, carto-darkmatter, stamen-terrain, stamen-toner, stamen-watercolor
     'basemap': 'white-bg',

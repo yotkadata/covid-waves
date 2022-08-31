@@ -339,6 +339,63 @@ if conf['mode'] == 'image':
             showscale=conf['coloraxis'],
         )
 
+        # Add legend
+        if conf['legend']:
+            # Define position and size of the legend
+            top = 0.9  # 0 = bottom / 1 = top
+            left = 0.01  # 0 = left / 1 = right
+            width = 0.01
+            height = 0.04
+            center = top - height / 2
+
+            # Define colors to be used in the legend
+            colors = ['#f8f8f8', '#FFF304', '#FFAC00', '#FF4654', '#E71827', '#C064E0', '#9C51B6', '#733381', '#000000']
+            shapes = []
+            i = 0
+
+            # Create shapes
+            for color in colors:
+                # https://plotly.com/python/reference/layout/shapes/
+                shapes += [go.layout.Shape(
+                    type='rect',
+                    fillcolor=color,
+                    xref='paper',
+                    yref='paper',
+                    x0=left,
+                    y0=top - i * height,
+                    x1=left + width,
+                    y1=top - (i + 1) * height,
+                    line=dict(width=0),
+                )]
+                i += 1
+
+            # Create annotations using not normalized break points
+            breaks_legend = calc_quantiles(df_breaks, conf['metric'], normalized=False)
+
+            annotations = []
+            i = 0
+
+            for step in breaks_legend:
+                text = 'No data' if breaks_legend[step] == -1 else breaks_legend[step]
+                # TODO: For some reason values for -1 and 0 don't show in the exported image.
+                annotations += dict(
+                    xref='paper',
+                    yref='paper',
+                    yanchor='middle',
+                    xanchor='left',
+                    x=left+width+0.005,
+                    y=center-i*height,
+                    showarrow=False,
+                    text=text,
+                ),
+                i += 1
+
+            # Add shapes and annotations to the figure
+            fig.update_layout(
+                shapes=shapes,
+                annotations=annotations,
+            )
+
         # Define file path and name
         file = str(export_path) + '/' + \
                date.strftime('%Y-%m-%d') + '-' + \
