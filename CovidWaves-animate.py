@@ -10,6 +10,14 @@ from PIL import Image
 from settings import conf  # Import configuration defined in settings.py
 
 #
+# Update data
+#
+
+if conf['update_data']:
+    from update_data import update_data
+    update_data()
+
+#
 # Set variables to calculate script running time and other tasks
 #
 
