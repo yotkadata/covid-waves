@@ -7,12 +7,7 @@ import imageio
 import pathlib
 import time
 from PIL import Image
-
-#
-# Import configuration defined in settings.py
-#
-
-from settings import conf
+from settings import conf  # Import configuration defined in settings.py
 
 #
 # Set variables to calculate script running time and other tasks
@@ -242,7 +237,7 @@ if conf['mode'] == 'image':
         # Calculate position of the date
         total_seconds = (last_date - first_date).total_seconds()
         now_seconds = (date - first_date).total_seconds()
-        date_position = 1 - (now_seconds / total_seconds)
+        date_position = 0.9 * (1 - now_seconds / total_seconds * 0.9)
 
         # Start plotting
         fig = go.Figure(go.Choroplethmapbox(
@@ -304,8 +299,8 @@ if conf['mode'] == 'image':
                     xref='paper',
                     yref='paper',
                     yanchor='top',
-                    xanchor='right',
-                    x=0.99,
+                    xanchor='left',
+                    x=0.01,
                     y=date_position,
                     showarrow=False,
                     text='<b>' + str(date.strftime('%d.%m.%Y')) + '</b>',
@@ -323,11 +318,12 @@ if conf['mode'] == 'image':
                     font=dict(
                         size=24,
                     ),
-                    x=0.01,
-                    y=0.5,
+                    x=0.99,
+                    y=0.01,
                     showarrow=False,
                     text='<b>By Jan Kühn</b><br /><sup>https://yotka.org</sup>',
-                    xanchor='left',
+                    xanchor='right',
+                    yanchor='bottom',
                     xref='paper',
                     yref='paper',
                     align='left',
@@ -342,8 +338,8 @@ if conf['mode'] == 'image':
         # Add legend
         if conf['legend']:
             # Define position and size of the legend
-            top = 0.9  # 0 = bottom / 1 = top
-            left = 0.01  # 0 = left / 1 = right
+            top = 0.99  # 0 = bottom / 1 = top
+            left = 0.99  # 0 = left / 1 = right
             width = 0.01
             height = 0.04
             center = top - height / 2
@@ -360,9 +356,9 @@ if conf['mode'] == 'image':
                     xref='paper',
                     yref='paper',
                     x0=left,
-                    y0=top - i * height,
-                    x1=left + width,
-                    y1=top - (i + 1) * height,
+                    y0=top-i*height,
+                    x1=left-width,
+                    y1=top-(i+1)*height,
                     line=dict(width=0),
                 ))
                 i += 1
@@ -381,8 +377,8 @@ if conf['mode'] == 'image':
                     xref='paper',
                     yref='paper',
                     yanchor='middle',
-                    xanchor='left',
-                    x=left+width+0.005,
+                    xanchor='right',
+                    x=left-width-0.005,
                     y=center-i*height,
                     showarrow=False,
                     text=text,
