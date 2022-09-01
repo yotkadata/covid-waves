@@ -5,17 +5,11 @@
 import pandas as pd
 
 
-##
-
 #
-# Define some variables for the script
+# Import configuration defined in settings.py
 #
 
-limit_dates = False         # Limit the dates to be included? True/False
-date_start = '2020-11-01'   # Start date in case of True
-date_end = '2020-11-30'     # End date in case of True
-
-refresh_source = False      # Download data to refresh? True/False
+from settings import conf
 
 ##
 
@@ -64,8 +58,8 @@ print("Import done.")
 # If selected above, reduce the dataset to selected time frame
 #
 
-if limit_dates:
-    covid_raw = covid_raw[(covid_raw['date'] >= date_start) & (covid_raw['date'] <= date_end)]
+if conf['limit_dates']:
+    covid_raw = covid_raw[(covid_raw['date'] >= conf['data_start']) & (covid_raw['date'] <= conf['data_end'])]
 
 ##
 
@@ -307,7 +301,7 @@ print("\nCalculations done.")
 print("\nStart export.")
 
 # Define string to be added to file name if data is limited to certain time frame
-limit = ('_' + str(date_start) + '_' + str(date_end)) if limit_dates else ''
+limit = ('_' + str(conf['data_start']) + '_' + str(conf['data_end'])) if conf['limit_dates'] else ''
 
 # Define file name and export daily data to CSV
 file = 'data/covid-waves-data-clean' + limit + '.csv'

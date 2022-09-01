@@ -4,8 +4,8 @@
 
 conf = {
     'set_dates': False,  # Use date_start and date_end to limit the dataset?
-    'date_start': '2022-01-01',  # Start date if 'set_dates' is True
-    'date_end': '2022-02-01',  # End date if 'set_dates' is True
+    'date_start': '2020-02-01',  # Start date if 'set_dates' is True
+    'date_end': '2022-06-04',  # End date if 'set_dates' is True
 
     'mode': 'image',  # image, html, or stitch (manual_path)
     'image_format': 'png',  # png or webp
@@ -33,8 +33,14 @@ conf = {
     'legend': True,  # Show legend based on calculated break points? True or False
 
     # 9 colors to be used to represent values
-    'colors': ['#f8f8f8', '#FFF304', '#FFAC00', '#FF4654', '#E71827', '#C064E0', '#9C51B6', '#733381', '#000000'],
+    'colors': ['#f8f8f8', '#faf58e', '#ffac00', '#ff4654', '#e71827', '#c064e0', '#9c51b6', '#733381', '#000'],
 
     # white-bg, open-street-map, carto-positron, carto-darkmatter, stamen-terrain, stamen-toner, stamen-watercolor
     'basemap': 'white-bg',
+
+    # Settings for data update (including cleaning)
+    'limit_dates': False,  # Limit the dates to be included? True/False
+    'data_start': '2020-02-01',  # Start date in case of True
+    'data_end': '2022-06-24',  # End date in case of True
+    'refresh_source': False,  # Download data to refresh? True/False
 }
