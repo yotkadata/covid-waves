@@ -4,7 +4,7 @@
 
 conf = {
     'set_dates': False,  # Use date_start and date_end to limit the dataset?
-    'date_start': '2020-02-01',  # Start date if 'set_dates' is True
+    'date_start': '2022-02-01',  # Start date if 'set_dates' is True
     'date_end': '2022-06-24',  # End date if 'set_dates' is True
 
     'mode': 'image',  # image, html, or stitch (manual_path)
@@ -39,7 +39,7 @@ conf = {
     'basemap': 'white-bg',
 
     # Settings for data update (including cleaning)
-    'update_data': True,  # Re-run the script update_data.py to refresh data? True/False
+    'update_data': False,  # Re-run the script update_data.py to refresh data? True/False
     'limit_dates': False,  # Limit the dates to be included? True/False
     'data_start': '2020-02-01',  # Start date in case of True
     'data_end': '2022-06-24',  # End date in case of True
