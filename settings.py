@@ -39,9 +39,9 @@ conf = {
     'basemap': 'white-bg',
 
     # Settings for data update (including cleaning)
-    'update_data': False,  # Re-run the script update_data.py to refresh data? True/False
+    'update_data': True,  # Re-run the script update_data.py to refresh data? True/False
     'limit_dates': False,  # Limit the dates to be included? True/False
     'data_start': '2020-02-01',  # Start date in case of True
     'data_end': '2022-06-24',  # End date in case of True
-    'refresh_source': False,  # Download data to refresh? True/False
+    'refresh_source': True,  # Download data to refresh? True/False
 }
