@@ -1,1 +1,5 @@
 export/
+data/covid-waves-data-clean-weekly.csv
+data/covid-waves-data-clean-weekly.xlsx
+data/covid-waves-data-clean.csv
+data/european-regional-tracker.csv
