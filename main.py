@@ -334,7 +334,7 @@ if conf['mode'] == 'image':
                     yanchor='bottom',
                     xref='paper',
                     yref='paper',
-                    align='left',
+                    align='right',
                 )
             )
 
