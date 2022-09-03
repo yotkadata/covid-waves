@@ -31,6 +31,12 @@ That way, during the **first waves** of the pandemic in 2020, maximum numbers ar
 ![](examples/peak-2-nov-2021_300.png)
 ![](examples/peak-3-feb-2022_300.png)
 
+I checked the color scheme with the [Coblis Color blindness simulator](https://www.color-blindness.com/coblis-color-blindness-simulator/) to see if it works well for those with one or another type of color blindness. In all but one cases, the results looked good to me. I still have to come up with a solution for Monochromacy/Achromatopsia though. Hints are very welcome.
+
+## File formats
+
+The script allows to select between `png` and `webp` for the exported images and between `gif` and `webp` for the animation.
+
 ## Caveats
 
 COVID-19 data has many caveats and actually it's difficult to compare countries, especially regarding detected cases. Different testing policies leading to different numbers of tests and different criteria of who to test distort the numbers not only between countries, but also between different points in time, as policies change. Also, higher numbers of detected cases don't necessarily translate to the same increase in hospital admissions or deaths from COVID-19. 
