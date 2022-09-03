@@ -301,7 +301,7 @@ if conf['mode'] == 'image':
                     x=0.01,
                     y=0,
                     showarrow=False,
-                    text='<b>Data:</b> COVID19-European-Regional-Tracker, <b>Graph:</b> Jan Kühn (https://yotka.org)',
+                    text='<b>Data:</b> COVID19-European-Regional-Tracker/Eurostat, <b>Graph:</b> Jan Kühn (https://yotka.org)',
                 ),
                 dict(
                     xref='paper',
