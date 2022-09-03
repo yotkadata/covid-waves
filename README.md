@@ -1,6 +1,6 @@
 ![](examples/header-img.png)
 
-# CovidWaves
+# Covid Waves
 _A data visualisation project by [Jan Kühn](https://yotka.org), September 2022_
 
 ## What is this about?
@@ -38,3 +38,22 @@ COVID-19 data has many caveats and actually it's difficult to compare countries,
 But even taking into account those caveats, the data shows some interesting trends. At some moments during the pandemic, COVID-19 waves seem to spread through the continent (almost) regardless of borders. This happened, for example after June 2021 when detected cases started to rise steeply on the Iberian Peninsula and then "moved" to France in Summer and the rest of Europe in December/January, just to "send back" an even bigger wave in January/February 2022:
 
 ![](examples/ping-pong.webp)
+
+## License
+
+Shield: [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
+
+This work is licensed under a
+[Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License][cc-by-nc-sa].
+
+[![CC BY-NC-SA 4.0][cc-by-nc-sa-image]][cc-by-nc-sa]
+
+[cc-by-nc-sa]: http://creativecommons.org/licenses/by-nc-sa/4.0/
+[cc-by-nc-sa-image]: https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png
+[cc-by-nc-sa-shield]: https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg
+
+## Thanks ...
+
+... to the [COVID19-European-Regional-Tracker](https://github.com/asjadnaqvi/COVID19-European-Regional-Tracker) for preparing the data.
+
+... to [Jan T. Sott (idleberg)](https://github.com/idleberg) for the markdown of the Creative Commons license text.
