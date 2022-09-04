@@ -26,8 +26,9 @@ conf = {
     'animation_fps': 7,  # Frames per second
     'animation_loops': 1,  # Number of loops (0=loop indefinitely)
 
-    'height': 800,  # Height of the images/animation
     'width': 1000,  # Width of the images/animation
+    'height': 'auto',  # Height of the images/animation. 'auto' to calculate based on height_scale
+    'height_scale': 0.8,  # Ratio of height to width if height is set to 'auto'
     'colorscale': 'dataset',  # Set colorscale based on 'sample' or whole 'dataset'
     'coloraxis': False,  # Show color axis? True or False
     'legend': True,  # Show legend based on calculated break points? True or False

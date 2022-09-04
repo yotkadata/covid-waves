@@ -7,6 +7,7 @@ import imageio
 import pathlib
 import time
 from PIL import Image
+import math
 from settings import conf  # Import configuration defined in settings.py
 
 #
@@ -26,6 +27,17 @@ dates_processed = 0  # Create empty variable for calculation
 duration_total = 0  # Create empty variable for calculation
 now = dt.datetime.now()  # Current datetime to be used for folder names etc.
 
+# Calculate factor for resizing, based on the default width of 1000px
+factor = conf['width'] / 1000
+
+# Calculate the zoom factor
+# Mapbox zoom is based on a log scale where zoom = 3 is ideal for our map at 1000px.
+# So factor = 2 ^ (zoom - 3) and zoom = log(factor) / log(2) + 3
+zoom = math.log(factor) / math.log(2) + 3
+
+# Calculate height in case it is set to 'auto'
+if conf['height'] == 'auto':
+    conf['height'] = conf['width'] * conf['height_scale']
 
 #
 # Define functions
@@ -133,13 +145,13 @@ custom_template = {
     'layout': go.Layout(
         font={
             'family': 'Lato',
-            'size': 12,
+            'size': 12*factor,
             'color': '#1f1f1f',
         },
         title={
             'font': {
                 'family': 'Lato',
-                'size': 24,
+                'size': 24*factor,
                 'color': '#1f1f1f',
             },
         },
@@ -275,7 +287,7 @@ if conf['mode'] == 'image':
             mapbox={
                 'center': {'lat': 57.245936, 'lon': 9.274491},  # Set center coordinates of the map
                 'style': conf['basemap'],
-                'zoom': 3,
+                'zoom': zoom,
                 'layers': [
                     {
                         'name': 'country_borders',  # Add country borders as thin lines
@@ -283,7 +295,7 @@ if conf['mode'] == 'image':
                         'type': 'line',
                         'color': '#ccc',
                         'opacity': 0.3,
-                        'line': {'width': 1}
+                        'line': {'width': 1*factor}
                     },
                 ],
             },
@@ -313,7 +325,7 @@ if conf['mode'] == 'image':
                     showarrow=False,
                     text='<b>' + str(date.strftime('%d.%m.%Y')) + '</b>',
                     font={
-                        'size': 24,
+                        'size': 24*factor,
                     },
                 ),
             ]
@@ -324,7 +336,7 @@ if conf['mode'] == 'image':
             fig.add_annotation(
                 dict(
                     font=dict(
-                        size=24,
+                        size=24*factor,
                     ),
                     x=0.99,
                     y=0.01,
@@ -474,7 +486,7 @@ if conf['mode'] == 'html':
         ],
         mapbox_style=conf['basemap'],
         center={'lat': 57.245936, 'lon': 9.274491},
-        zoom=3,
+        zoom=zoom,
         template=custom_template,
         animation_frame='date_str',
         animation_group='nuts_id',
