@@ -220,7 +220,7 @@ def update_data():
 
     print("Done.")
 
-    # Calculate 7 and 14 day rolling average for each NUTS ID
+    # Calculate 7, 14, and 28 day rolling average for each NUTS ID
     print("\nCalculate 7/14 day rolling average for each NUTS ID.")
 
     covid_calc['moving7d_pop'] = (covid_calc.groupby('nuts_id')['cases_pop']
@@ -228,6 +228,9 @@ def update_data():
 
     covid_calc['moving14d_pop'] = (covid_calc.groupby('nuts_id')['cases_pop']
                                    .transform(lambda x: x.rolling(14, 1).mean().round(2)))
+
+    covid_calc['moving28d_pop'] = (covid_calc.groupby('nuts_id')['cases_pop']
+                                   .transform(lambda x: x.rolling(28, 1).mean().round(2)))
 
     print("Done.")
 
@@ -252,7 +255,7 @@ def update_data():
     print("\nFill still missing values with a constant for 'no data available'")
 
     # Daily data: Define columns to be filled
-    no_data = ['cases', 'cases_pop', 'moving7d_pop', 'moving14d_pop', 'cumulated_pop']
+    no_data = ['cases', 'cases_pop', 'moving7d_pop', 'moving14d_pop', 'moving28d_pop', 'cumulated_pop']
 
     # Loop through columns and fill them
     for fill_col in no_data:

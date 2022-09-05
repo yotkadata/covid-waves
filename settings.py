@@ -4,7 +4,7 @@
 
 conf = {
     'set_dates': False,  # Use date_start and date_end to limit the dataset?
-    'date_start': '2022-02-01',  # Start date if 'set_dates' is True
+    'date_start': '2020-02-01',  # Start date if 'set_dates' is True
     'date_end': '2022-06-24',  # End date if 'set_dates' is True
 
     'mode': 'image',  # image, html, or stitch (manual_path)
@@ -13,8 +13,9 @@ conf = {
     'metric': 'moving14d_pop',  # Metric to use: see metric_desc
     'metric_desc': {  # Descriptions for the different metrics
         'cases_pop': 'Daily detected cases per million by NUTS region',
-        'moving7d_pop': 'Moving 7 day average of detected cases per million by NUTS region',
-        'moving14d_pop': 'Moving 14 day average of detected cases per million by NUTS region',
+        'moving7d_pop': 'Moving 7 day average of daily detected cases per million by NUTS region',
+        'moving14d_pop': 'Moving 14 day average of daily detected cases per million by NUTS region',
+        'moving28d_pop': 'Moving 4 week average of daily detected cases per million by NUTS region',
         'cumulated_pop': 'Cumulated detected cases per million by NUTS region',
         'cases_pop_weekly': 'Weekly detected cases per million by NUTS region',
         'moving4w_pop': 'Moving 4 week average of detected weekly cases per million by NUTS region',
