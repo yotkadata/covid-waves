@@ -3,7 +3,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import datetime as dt
 import json
-import imageio
+import imageio.v3 as iio
 import pathlib
 import time
 from PIL import Image
@@ -107,7 +107,7 @@ def stitch_animation(file_list, anim_path, animation_format=conf['animation_form
     if animation_format == 'gif':
         # Loop through image files and add them to 'images'
         for anim_file_name in file_list:
-            images.append(imageio.v2.imread(anim_file_name))
+            images.append(iio.imread(anim_file_name))
             image_count += 1
 
         print("Done. Added", image_count, "images.")
@@ -115,7 +115,7 @@ def stitch_animation(file_list, anim_path, animation_format=conf['animation_form
         print("Create animation.")
 
         # Create animation
-        imageio.mimsave(anim_path, images, fps=fps, loop=loop)
+        iio.imwrite(anim_path, images, fps=fps, loop=loop)
 
     if animation_format == 'webp':
         # Loop through image files and add them to 'images'
