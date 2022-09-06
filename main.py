@@ -43,6 +43,7 @@ if conf['height'] == 'auto':
 # Define functions
 #
 
+
 # Calculate quintiles for the colorscale
 def calc_quantiles(df_q, column_q, normalized=True, base=5):
     # Steps to be used as break points
@@ -240,6 +241,126 @@ if conf['mode'] == 'image':
     first_date = df_raw['date'].min()
     last_date = df_raw['date'].max()
 
+    df_plot = df[df['date'] == dates[0]]
+
+    # Start plotting constructing the map used for all images
+    fig = go.Figure(go.Choroplethmapbox(
+        geojson=geo_nuts_level3,
+        locations=df_plot['nuts_id'],
+        z=df_plot[conf['metric']],
+        zmin=0,
+        zmax=df_breaks[conf['metric']].max(),
+        colorscale=[
+            [0, conf['colors'][0]],
+            [breaks[0.2], conf['colors'][1]],
+            [breaks[0.4], conf['colors'][2]],
+            [breaks[0.6], conf['colors'][3]],
+            [breaks[0.8], conf['colors'][4]],
+            [breaks[0.9], conf['colors'][5]],
+            [breaks[0.95], conf['colors'][6]],
+            [breaks[0.99], conf['colors'][7]],
+            [1, conf['colors'][8]]
+        ],
+    ))
+
+    fig.update_layout(
+        height=conf['height'],
+        width=conf['width'],
+        xaxis_autorange=False,
+        yaxis_autorange=False,
+        mapbox={
+            'center': {'lat': 57.245936, 'lon': 9.274491},  # Set center coordinates of the map
+            'style': conf['basemap'],
+            'zoom': zoom,
+            'layers': [
+                {
+                    'name': 'country_borders',  # Add country borders as thin lines
+                    'source': geo_countries,
+                    'type': 'line',
+                    'color': '#ccc',
+                    'opacity': 0.3,
+                    'line': {'width': 1 * factor}
+                },
+            ],
+        },
+        margin={'r': 3, 't': 3, 'l': 3, 'b': 3},
+        template=custom_template,
+        title_text='<b>COVID19 waves in Europe</b><br />'
+                   '<sup>' + conf['metric_desc'][conf['metric']] + '</sup>',
+        title_x=0.01,
+        title_y=0.96,
+        coloraxis_colorbar=dict(title=''),
+        annotations=[
+            dict(
+                xref='paper',
+                yref='paper',
+                x=0.01,
+                y=0,
+                showarrow=False,
+                text='<b>Data:</b> COVID19-European-Regional-Tracker/Eurostat, '
+                     '<b>Graph:</b> Jan Kühn (https://yotka.org)',
+            ),
+        ]
+    )
+
+    fig.update_traces(
+        marker_line_width=0,  # Width of the NUTS borders
+        showscale=conf['coloraxis'],
+    )
+
+    # Add legend
+    if conf['legend']:
+        # Define position and size of the legend
+        top = 0.99  # 0 = bottom / 1 = top
+        left = 0.99  # 0 = left / 1 = right
+        width = 0.01
+        height = 0.04
+        center = top - height / 2
+
+        shapes = []
+        i = 0
+
+        # Create shapes
+        for color in conf['colors']:
+            # https://plotly.com/python/reference/layout/shapes/
+            fig.add_shape(go.layout.Shape(
+                type='rect',
+                fillcolor=color,
+                xref='paper',
+                yref='paper',
+                x0=left,
+                y0=top - i * height,
+                x1=left - width,
+                y1=top - (i + 1) * height,
+                line=dict(width=0),
+            ))
+            i += 1
+
+        # Create annotations using not normalized break points
+        breaks_legend = calc_quantiles(df_breaks, conf['metric'], normalized=False)
+
+        annotations = []
+        i = 0
+
+        for step in breaks_legend:
+            text = 'No data' if breaks_legend[step] == -1 else breaks_legend[step]
+
+            # https://plotly.com/python/reference/layout/annotations/
+            fig.add_annotation(dict(
+                xref='paper',
+                yref='paper',
+                yanchor='middle',
+                xanchor='right',
+                x=left - width - 0.005,
+                y=center - i * height,
+                showarrow=False,
+                text=text,
+            ))
+            i += 1
+
+    print("Created basic map for all images.")
+
+    # Update the map for all dates and export the image
     for date in dates:
 
         # Set variable to track performance
@@ -259,62 +380,9 @@ if conf['mode'] == 'image':
         now_seconds = (date - first_date).total_seconds()
         date_position = 0.9 * (1 - now_seconds / total_seconds * 0.9)
 
-        # Start plotting
-        fig = go.Figure(go.Choroplethmapbox(
-            geojson=geo_nuts_level3,
-            locations=df_plot['nuts_id'],
-            z=df_plot[conf['metric']],
-            zmin=0,
-            zmax=df_breaks[conf['metric']].max(),
-            colorscale=[
-                [0, conf['colors'][0]],
-                [breaks[0.2], conf['colors'][1]],
-                [breaks[0.4], conf['colors'][2]],
-                [breaks[0.6], conf['colors'][3]],
-                [breaks[0.8], conf['colors'][4]],
-                [breaks[0.9], conf['colors'][5]],
-                [breaks[0.95], conf['colors'][6]],
-                [breaks[0.99], conf['colors'][7]],
-                [1, conf['colors'][8]]
-            ],
-        ))
-
-        fig.update_layout(
-            height=conf['height'],
-            width=conf['width'],
-            xaxis_autorange=False,
-            yaxis_autorange=False,
-            mapbox={
-                'center': {'lat': 57.245936, 'lon': 9.274491},  # Set center coordinates of the map
-                'style': conf['basemap'],
-                'zoom': zoom,
-                'layers': [
-                    {
-                        'name': 'country_borders',  # Add country borders as thin lines
-                        'source': geo_countries,
-                        'type': 'line',
-                        'color': '#ccc',
-                        'opacity': 0.3,
-                        'line': {'width': 1*factor}
-                    },
-                ],
-            },
-            margin={'r': 3, 't': 3, 'l': 3, 'b': 3},
-            template=custom_template,
-            title_text='<b>COVID19 waves in Europe</b><br />'
-                       '<sup>' + conf['metric_desc'][conf['metric']] + '</sup>',
-            title_x=0.01,
-            title_y=0.96,
-            coloraxis_colorbar=dict(title=''),
-            annotations=[
-                dict(
-                    xref='paper',
-                    yref='paper',
-                    x=0.01,
-                    y=0,
-                    showarrow=False,
-                    text='<b>Data:</b> COVID19-European-Regional-Tracker/Eurostat, <b>Graph:</b> Jan Kühn (https://yotka.org)',
-                ),
+        # Add annotation with the current date in the first run of the loop
+        if date == dates[0]:
+            fig.add_annotation(
                 dict(
                     xref='paper',
                     yref='paper',
@@ -328,8 +396,23 @@ if conf['mode'] == 'image':
                         'size': 24*factor,
                     },
                 ),
-            ]
-        )
+            )
+
+        # Update annotation for all other loop runs
+        if date != dates[0]:
+
+            # Calculate date of the day before current date
+            day_before = (pd.to_datetime(date) - dt.timedelta(days=1)).strftime('%d.%m.%Y')
+
+            # Update annotation showing current date
+            fig.update_annotations(
+                selector={'text': '<b>' + day_before + '</b>'},  # Select the right annotation to update
+                text='<b>' + str(date.strftime('%d.%m.%Y')) + '</b>',
+                y=date_position,
+            )
+
+        # Update colors of the map ('z') with those of the current date
+        fig['data'][0]['z'] = df_plot[conf['metric']]
 
         # Add attribution to the last frame
         if last_run:
@@ -349,61 +432,6 @@ if conf['mode'] == 'image':
                     align='right',
                 )
             )
-
-        fig.update_traces(
-            marker_line_width=0,  # Width of the NUTS borders
-            showscale=conf['coloraxis'],
-        )
-
-        # Add legend
-        if conf['legend']:
-            # Define position and size of the legend
-            top = 0.99  # 0 = bottom / 1 = top
-            left = 0.99  # 0 = left / 1 = right
-            width = 0.01
-            height = 0.04
-            center = top - height / 2
-
-            shapes = []
-            i = 0
-
-            # Create shapes
-            for color in conf['colors']:
-                # https://plotly.com/python/reference/layout/shapes/
-                fig.add_shape(go.layout.Shape(
-                    type='rect',
-                    fillcolor=color,
-                    xref='paper',
-                    yref='paper',
-                    x0=left,
-                    y0=top-i*height,
-                    x1=left-width,
-                    y1=top-(i+1)*height,
-                    line=dict(width=0),
-                ))
-                i += 1
-
-            # Create annotations using not normalized break points
-            breaks_legend = calc_quantiles(df_breaks, conf['metric'], normalized=False)
-
-            annotations = []
-            i = 0
-
-            for step in breaks_legend:
-                text = 'No data' if breaks_legend[step] == -1 else breaks_legend[step]
-
-                # https://plotly.com/python/reference/layout/annotations/
-                fig.add_annotation(dict(
-                    xref='paper',
-                    yref='paper',
-                    yanchor='middle',
-                    xanchor='right',
-                    x=left-width-0.005,
-                    y=center-i*height,
-                    showarrow=False,
-                    text=text,
-                ))
-                i += 1
 
         # Define file path and name
         file = str(export_path) + '/' + \
