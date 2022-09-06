@@ -20,8 +20,10 @@ def update_data():
     if conf['refresh_source']:
         import requests
 
+        print("Refresh data from GitHub: Start download.")
+
         remote_url = 'https://raw.githubusercontent.com/asjadnaqvi/COVID19-European-Regional-Tracker/master/04_master' \
-                     '/csv_nuts/EUROPE_COVID19_master.csv '
+                     '/csv_nuts/EUROPE_COVID19_master.csv'
         local_file = 'data/european-regional-tracker.csv'
 
         # Make http request for remote file data
@@ -30,6 +32,8 @@ def update_data():
         # Save file data to local copy
         with open(local_file, 'wb') as file:
             file.write(data.content)
+
+        print(f"Done. File saved as {local_file}")
 
     # Import CSV with Covid19 data
     covid_raw = pd.read_csv('data/european-regional-tracker.csv',
