@@ -24,12 +24,14 @@ conf = {
     'animation': True,  # Create animation? True or False (just for mode 'image')
     'animation_format': 'webp',  # File format of the animation (gif or webp). gif only works with png.
     'manual_path': '',  # Path for manual
-    'animation_fps': 7,  # Frames per second
+    'animation_fps': 14,  # Frames per second
     'animation_loops': 1,  # Number of loops (0=loop indefinitely)
 
-    'width': 1000,  # Width of the images/animation
+    'width': 1920,  # Width of the images/animation (Medium: 640, Full HD: 1920, 4K: 3840)
     'height': 'auto',  # Height of the images/animation. 'auto' to calculate based on height_scale
-    'height_scale': 0.8,  # Ratio of height to width if height is set to 'auto'
+    'height_scale': 0.75,  # Ratio of height to width if height is set to 'auto' (3:4 = 0.75, 16:9 = 0.5625)
+    'zoom_adapt': 'height',  # Use height or width to adapt zoom?
+
     'colorscale': 'dataset',  # Set colorscale based on 'sample' or whole 'dataset'
     'coloraxis': False,  # Show color axis? True or False
     'legend': True,  # Show legend based on calculated break points? True or False

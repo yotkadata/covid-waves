@@ -27,17 +27,18 @@ dates_processed = 0  # Create empty variable for calculation
 duration_total = 0  # Create empty variable for calculation
 now = dt.datetime.now()  # Current datetime to be used for folder names etc.
 
-# Calculate factor for resizing, based on the default width of 1000px
-factor = conf['width'] / 1000
+# Calculate height in case it is set to 'auto'
+if conf['height'] == 'auto':
+    conf['height'] = conf['width'] * conf['height_scale']
+
+# Calculate factor for resizing, based on the default width of 1000px or height of 800px
+default = 1000 if conf['zoom_adapt'] == 'width' else 800
+factor = conf[conf['zoom_adapt']] / default
 
 # Calculate the zoom factor
 # Mapbox zoom is based on a log scale where zoom = 3 is ideal for our map at 1000px.
 # So factor = 2 ^ (zoom - 3) and zoom = log(factor) / log(2) + 3
 zoom = math.log(factor) / math.log(2) + 3
-
-# Calculate height in case it is set to 'auto'
-if conf['height'] == 'auto':
-    conf['height'] = conf['width'] * conf['height_scale']
 
 #
 # Define functions
