@@ -253,6 +253,10 @@ def update_data():
     covid_calc_weekly['cumulated_pop_w'] = covid_calc_weekly.groupby('nuts_id')['cases_pop_w'].transform(
         pd.Series.cumsum)
 
+    # Forward fill cumulated values to the end
+    covid_calc['cumulated_pop'] = covid_calc.groupby('nuts_id')['cumulated_pop'].ffill()
+    covid_calc_weekly['cumulated_pop_w'] = covid_calc_weekly.groupby('nuts_id')['cumulated_pop_w'].ffill()
+
     print("Done.")
 
     # Fill still missing values with a constant for 'no data available'
