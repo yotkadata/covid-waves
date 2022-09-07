@@ -437,7 +437,8 @@ if conf['mode'] == 'image':
         file = str(export_path) + '/' + \
                date.strftime('%Y-%m-%d') + '-' + \
                conf['resolution'] + '-' + \
-               conf['metric'] + \
+               conf['metric'] + '-' + \
+               str(conf['width']) + 'px' + \
                '.' + conf['image_format']
 
         # Write map to image file
@@ -467,7 +468,7 @@ if conf['mode'] == 'image':
         export_path = pathlib.Path('export/animation/')
         export_path.mkdir(parents=True, exist_ok=True)
 
-        stitch_animation(image_files, export_path, params=[conf['resolution'], conf['metric']])
+        stitch_animation(image_files, export_path, params=[conf['resolution'], conf['metric'], str(conf['width']) + 'px'])
 
 ##
 
