@@ -189,7 +189,7 @@ if conf['mode'] != 'stitch':
     print("\nStarting import of CSV file.")
 
     # Define string to be added to fór weekly metrics
-    append = '-weekly' if conf['metric'] in ['cases_pop_weekly', 'moving4w_pop'] else ''
+    append = '-weekly' if conf['metric'] in ['cases_pop_weekly', 'moving4w_pop', 'moving8w_pop'] else ''
 
     # Define file name to be imported
     file = 'data/covid-waves-data-clean' + append + '.csv'

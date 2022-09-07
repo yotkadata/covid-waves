@@ -19,6 +19,7 @@ conf = {
         'cumulated_pop': 'Cumulated detected cases per million by NUTS region',
         'cases_pop_weekly': 'Weekly detected cases per million by NUTS region',
         'moving4w_pop': 'Moving 4 week average of detected weekly cases per million by NUTS region',
+        'moving8w_pop': 'Moving 8 week average of detected weekly cases per million by NUTS region',
     },
 
     'animation': True,  # Create animation? True or False (just for mode 'image')

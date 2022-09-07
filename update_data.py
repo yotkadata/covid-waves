@@ -238,11 +238,13 @@ def update_data():
 
     print("Done.")
 
-    # Calculate 4 week rolling average for aggregated weekly data
+    # Calculate 4 and 8 week rolling average for aggregated weekly data
     print("\nCalculate 4 week rolling average for each NUTS ID (weekly data).")
 
     covid_calc_weekly['moving4w_pop'] = (covid_calc_weekly.groupby('nuts_id')['cases_pop_w']
                                          .transform(lambda x: x.rolling(4, 1).mean().round(2)))
+    covid_calc_weekly['moving8w_pop'] = (covid_calc_weekly.groupby('nuts_id')['cases_pop_w']
+                                         .transform(lambda x: x.rolling(8, 1).mean().round(2)))
 
     print("Done.")
 
@@ -270,7 +272,7 @@ def update_data():
         covid_calc[fill_col] = covid_calc[fill_col].fillna(value=-1)
 
     # Weekly data: Define columns to be filled
-    no_data = ['cases_w', 'cases_pop_w', 'moving4w_pop', 'cumulated_pop_w']
+    no_data = ['cases_w', 'cases_pop_w', 'moving4w_pop', 'moving8w_pop', 'cumulated_pop_w']
 
     # Loop through columns and fill them
     for fill_col in no_data:
