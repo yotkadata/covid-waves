@@ -13,13 +13,13 @@ conf = {
     'metric': 'moving14d_pop',  # Metric to use: see metric_desc
     'metric_desc': {  # Descriptions for the different metrics
         'cases_pop': 'Daily detected cases per million by NUTS region',
-        'moving7d_pop': 'Moving 7 day average of daily detected cases per million by NUTS region',
-        'moving14d_pop': 'Moving 14 day average of daily detected cases per million by NUTS region',
-        'moving28d_pop': 'Moving 4 week average of daily detected cases per million by NUTS region',
+        'moving7d_pop': '7-day moving average of daily detected cases per million by NUTS region',
+        'moving14d_pop': '14-day moving average of daily detected cases per million by NUTS region',
+        'moving28d_pop': '4-week moving average of daily detected cases per million by NUTS region',
         'cumulated_pop': 'Cumulated detected cases per million by NUTS region',
         'cases_pop_weekly': 'Weekly detected cases per million by NUTS region',
-        'moving4w_pop': 'Moving 4 week average of detected weekly cases per million by NUTS region',
-        'moving8w_pop': 'Moving 8 week average of detected weekly cases per million by NUTS region',
+        'moving4w_pop': '4-week moving average of detected weekly cases per million by NUTS region',
+        'moving8w_pop': '8-week moving average of detected weekly cases per million by NUTS region',
     },
 
     'animation': True,  # Create animation? True or False (just for mode 'image')

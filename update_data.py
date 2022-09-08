@@ -224,8 +224,8 @@ def update_data():
 
     print("Done.")
 
-    # Calculate 7, 14, and 28 day rolling average for each NUTS ID
-    print("\nCalculate 7/14 day rolling average for each NUTS ID.")
+    # Calculate 7-, 14-, and 28-day moving average for each NUTS ID
+    print("\nCalculate 7/14-day moving average for each NUTS ID.")
 
     covid_calc['moving7d_pop'] = (covid_calc.groupby('nuts_id')['cases_pop']
                                   .transform(lambda x: x.rolling(7, 1).mean().round(2)))
@@ -238,8 +238,8 @@ def update_data():
 
     print("Done.")
 
-    # Calculate 4 and 8 week rolling average for aggregated weekly data
-    print("\nCalculate 4 and 8 week rolling average for each NUTS ID (weekly data).")
+    # Calculate 4- and 8-week moving average for aggregated weekly data
+    print("\nCalculate 4- and 8-week moving average for each NUTS ID (weekly data).")
 
     covid_calc_weekly['moving4w_pop'] = (covid_calc_weekly.groupby('nuts_id')['cases_pop_w']
                                          .transform(lambda x: x.rolling(4, 2).mean().round(2)))
