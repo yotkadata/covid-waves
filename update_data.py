@@ -9,10 +9,10 @@ def update_data():
     ##
 
     #
-    # Get Covid19 data
+    # Get COVID-19 data
     #
 
-    print("Get Covid19 data. This may take a while.")
+    print("Get COVID-19 data. This may take a while.")
 
     # COVID19-European-Regional-Tracker
     # https://github.com/asjadnaqvi/COVID19-European-Regional-Tracker
@@ -35,7 +35,7 @@ def update_data():
 
         print(f"Done. File saved as {local_file}")
 
-    # Import CSV with Covid19 data
+    # Import CSV with COVID-19 data
     covid_raw = pd.read_csv('data/european-regional-tracker.csv',
                             sep=';',
                             decimal='.',

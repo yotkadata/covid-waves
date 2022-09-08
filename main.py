@@ -182,7 +182,7 @@ if conf['mode'] != 'stitch':
 ##
 
 #
-# Import Covid19 data from CSV
+# Import COVID-19 data from CSV
 #
 
 if conf['mode'] != 'stitch':
@@ -288,7 +288,7 @@ if conf['mode'] == 'image':
         },
         margin={'r': 3, 't': 3, 'l': 3, 'b': 3},
         template=custom_template,
-        title_text='<b>COVID19 waves in Europe</b><br />'
+        title_text='<b>COVID-19 waves in Europe</b><br />'
                    '<sup>' + conf['metric_desc'][conf['metric']] + '</sup>',
         title_x=0.01,
         title_y=0.96,
@@ -301,7 +301,8 @@ if conf['mode'] == 'image':
                 y=0,
                 showarrow=False,
                 text='<b>Data:</b> COVID19-European-Regional-Tracker/Eurostat, '
-                     '<b>Graph:</b> Jan Kühn (https://yotka.org)',
+                     '<b>Graph:</b> Jan Kühn (https://yotka.org), '
+                     '<b>License:</b> CC by-nc-sa 4.0',
             ),
         ]
     )
@@ -407,7 +408,7 @@ if conf['mode'] == 'image':
 
             # Calculate date of the day before current date (day one week ago for weekly metrics)
             time_diff = 7 if conf['metric'] in ['cases_pop_weekly', 'moving4w_pop', 'moving8w_pop'] else 1
-            selector= (pd.to_datetime(date) - dt.timedelta(days=time_diff)).strftime('%d.%m.%Y')
+            selector = (pd.to_datetime(date) - dt.timedelta(days=time_diff)).strftime('%d.%m.%Y')
 
             # Update annotation showing current date
             fig.update_annotations(
@@ -473,7 +474,8 @@ if conf['mode'] == 'image':
         export_path = pathlib.Path('export/animation/')
         export_path.mkdir(parents=True, exist_ok=True)
 
-        stitch_animation(image_files, export_path, params=[conf['resolution'], conf['metric'], str(conf['width']) + 'px'])
+        stitch_animation(image_files, export_path,
+                         params=[conf['resolution'], conf['metric'], str(conf['width']) + 'px'])
 
 ##
 
@@ -529,7 +531,7 @@ if conf['mode'] == 'html':
     )
 
     fig.update_layout(
-        title_text='<b>COVID19 waves in Europe</b><br />'
+        title_text='<b>COVID-19 waves in Europe</b><br />'
                    '<sup>' + conf['metric_desc'][conf['metric']] + '</sup>',
         title_x=0.01,
         title_y=0.96,
@@ -543,7 +545,9 @@ if conf['mode'] == 'html':
                 x=0.01,
                 y=0,
                 showarrow=False,
-                text='<b>Data:</b> COVID19-European-Regional-Tracker, <b>Graph:</b> Jan Kühn',
+                text='<b>Data:</b> COVID19-European-Regional-Tracker/Eurostat, '
+                     '<b>Graph:</b> Jan Kühn (https://yotka.org), '
+                     '<b>License:</b> CC by-nc-sa 4.0',
             )]
     )
 
