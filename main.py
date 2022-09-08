@@ -242,8 +242,10 @@ if conf['mode'] == 'image':
     first_date = df_raw['date'].min()
     last_date = df_raw['date'].max()
 
-    df_plot = df[df['date'] == dates[0]]
+    # Create a new dataframe containing just the rows for the first date and sort it
+    df_plot = df[df['date'] == dates[0]].sort_values(['nuts_id', 'date'])
 
+##
     # Start plotting constructing the map used for all images
     fig = go.Figure(go.Choroplethmapbox(
         geojson=geo_nuts_level3,
@@ -373,8 +375,9 @@ if conf['mode'] == 'image':
         # Check if this is the last iteration
         last_run = True if (len(dates) > 1 and date == dates.max()) else False
 
-        # Create a new dataframe containing just the rows for the current date
-        df_plot = df[df['date'] == date]
+        # Create a new dataframe containing just the rows for the current date and sort it as above
+        # It is important to sort the same way as above to make sure the numbers match to the right NUTS
+        df_plot = df[df['date'] == date].sort_values(['nuts_id', 'date'])
 
         # Calculate position of the date
         total_seconds = (last_date - first_date).total_seconds()
@@ -402,12 +405,13 @@ if conf['mode'] == 'image':
         # Update annotation for all other loop runs
         if date != dates[0]:
 
-            # Calculate date of the day before current date
-            day_before = (pd.to_datetime(date) - dt.timedelta(days=1)).strftime('%d.%m.%Y')
+            # Calculate date of the day before current date (day one week ago for weekly metrics)
+            time_diff = 7 if conf['metric'] in ['cases_pop_weekly', 'moving4w_pop', 'moving8w_pop'] else 1
+            selector= (pd.to_datetime(date) - dt.timedelta(days=time_diff)).strftime('%d.%m.%Y')
 
             # Update annotation showing current date
             fig.update_annotations(
-                selector={'text': '<b>' + day_before + '</b>'},  # Select the right annotation to update
+                selector={'text': '<b>' + selector + '</b>'},  # Select the right annotation to update
                 text='<b>' + str(date.strftime('%d.%m.%Y')) + '</b>',
                 y=date_position,
             )
