@@ -5,7 +5,7 @@ _A data visualisation project by [Jan Kühn](https://yotka.org), September 2022_
 
 ## What is this about?
 
-After more than two years of living with the pandemic of the new Corona virus Sars-CoV2 one thing we know for sure is that **the virus spreads in waves**. But how do they move across a continent – in this case Europe – that has many countries and even more policies to deal with the threat of this new pathogen? I used data to try to answer that question. The result is an animation of detected COVID-19 cases throughout the time period from February 2020 to June 2022. One possible result can be seen here:
+After more than two years of living with the pandemic of the new Corona virus Sars-CoV2 one thing we know for sure is that **the virus spreads in waves**. But how do they move across a continent – in this case Europe – that has many countries and even more policies to deal with the threat of this new pathogen? I used data to try to answer that question. The result is an animation of detected COVID-19 cases throughout the time period from February 2020 to June 2022. One possible result can be seen here or on [YouTube](https://www.youtube.com/watch?v=sBfaL9V16Uk):
 
 https://user-images.githubusercontent.com/7913590/189217513-43af5573-916c-4450-9d69-96d020270809.mp4
 
