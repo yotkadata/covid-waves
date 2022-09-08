@@ -5,7 +5,7 @@ _A data visualisation project by [Jan Kühn](https://yotka.org), September 2022_
 
 ## What is this about?
 
-After more than two years of living with the pandemic of the new Corona virus Sars-CoV2 one thing we know for sure is that **the virus spreads in waves**. But how do they move across a continent – in this case Europe – that has many countries and even more policies to deal with the threat of this new pathogen? I used data to try to answer that question. The result is an animation of detected COVID-19 cases throughout the time period from February 2020 to June 2022. 
+After more than two years of living with the pandemic of the new Corona virus Sars-CoV2 one thing we know for sure is that **the virus spreads in waves**. But how do they move across a continent – in this case Europe – that has many countries and even more policies to deal with the threat of this new pathogen? I used data to try to answer that question. The result is an animation of detected COVID-19 cases throughout the time period from February 2020 to June 2022.
 
 ## About the data
 
@@ -35,9 +35,16 @@ I checked the color scheme with the [Coblis Color blindness simulator](https://w
 
 ## File formats
 
-The script allows to select between `png` and `webp` for the exported images and between `gif` and `webp` for the animation. The `mp4` files are created usinf `ffmpeg` aside from the script:
+The script allows to select between `png` and `webp` for the exported images and between `gif` and `webp` for the animation. The `mp4` files are created using `ffmpeg` aside from the script:
 
-`ffmpeg -framerate 14 -pattern_type glob -i "*.png" -c:v libx264rgb -crf 0 output.mp4`
+`ffmpeg -framerate 28 -pattern_type glob -i "*.png" -c:v libx264 -crf 6 -pix_fmt yuv420p output.mp4`
+
+- `-framerate` sets the number of frames per second, i.e. the speed
+- `-pattern_type glob` defines to use `glob` to search for the file to be added
+- `-i "*.png"` means that all `PNG` files in the current folder will be included
+- `-c:v` sets the video codec to be used, in this case `libx264`
+- `-crf` sets the compression (0 = lossless/largest file, 51 = worst quality/small file)
+- `-pix_fmt yuv420p` sets the pixel format (for compatibility reasons)
 
 ## Caveats
 
