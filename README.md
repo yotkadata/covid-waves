@@ -21,6 +21,22 @@ By default, the script uses a dataset that has already been cleaned by `update_d
 
 In `settings.py`, the cleaning process can be set to be repeated (setting: `update_data: True`). In that case, the original data in `data/european-regional-tracker.csv` is imported and cleaned as described above. If in that case `refresh_source` is set to `True`, the data is fetched from the COVID19-European-Regional-Tracker repository first.
 
+## Metrics
+
+There are multiple metrics available to be used for the visualisation (to be set in `settings.py`). Default is the 14-day moving average of daily detected cases per million by NUTS region (`moving14d_pop`).
+
+### Daily data
+- `cases_pop`: Daily detected cases per million by NUTS region
+- `moving7d_pop`: 7-day moving average of daily detected cases per million by NUTS region
+- `moving14d_pop`: 14-day moving average of daily detected cases per million by NUTS region
+- `moving28d_pop`: 4-week moving average of daily detected cases per million by NUTS region
+- `cumulated_pop`: Cumulated detected cases per million by NUTS region
+
+### Aggregated weekly data
+- `cases_pop_weekly`: Weekly detected cases per million by NUTS region
+- `moving4w_pop`: 4-week moving average of detected weekly cases per million by NUTS region
+- `moving8w_pop`: 8-week moving average of detected weekly cases per million by NUTS region
+
 ## Use of colors
 
 Defining **colors and break points** for this dataset is rather challenging, because the magnitude of detected cases varies a lot both over time and geographically. For that reason, analyzing the data I chose to use red as the 'medium' color and dark purple to black as the maximum. The break points are **quantiles** at 20%, 40%, 60%, 80%, 90%, 95%, and 99%. 
