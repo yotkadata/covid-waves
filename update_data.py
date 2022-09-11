@@ -83,23 +83,6 @@ def update_data():
 
     ##
 
-    # Correct some dates from the years 2121 and 2222
-    # https://stackoverflow.com/a/50674062/381821
-
-    print("\nCorrect some dates.")
-
-    # Define years to be corrected
-    error_years = {2121: 2021, 2222: 2022}
-
-    # Loop through years to be corrected
-    for y in error_years:
-        covid_clean['date'] = (covid_clean['date']
-                               .apply(lambda x: x.replace(year=x.year - (y - error_years[y])) if x.year == y else x))
-
-    print("Done.")
-
-    ##
-
     # Remove NUTS regions irrelevant to the map
 
     print("\nRemove NUTS regions irrelevant to the map.")
