@@ -11,7 +11,7 @@ https://user-images.githubusercontent.com/7913590/189217513-43af5573-916c-4450-9
 
 ## About the data
 
-For COVID-19 cases, I used data of the (great!) [**COVID19-European-Regional-Tracker**](https://github.com/asjadnaqvi/COVID19-European-Regional-Tracker). It's a project that collected data from many sources and adapted them to Eurostat's geographic [**NUTS regions**](https://ec.europa.eu/eurostat/web/nuts/background) (the so-called "Nomenclature of territorial units for statistics" (NUTS)) in its 2016 version (why not 2021, you ask? [Read more here](https://github.com/asjadnaqvi/COVID19-European-Regional-Tracker#combining-data-across-countries)).
+For COVID-19 cases, I used data of the (great!) [**COVID19-European-Regional-Tracker**](https://github.com/asjadnaqvi/COVID19-European-Regional-Tracker). It's a project by [Asjad Naqvi](https://github.com/asjadnaqvi) that collected data from many sources and adapted them to Eurostat's geographic [**NUTS regions**](https://ec.europa.eu/eurostat/web/nuts/background) (the so-called "Nomenclature of territorial units for statistics" (NUTS)) in its 2016 version (why not 2021, you ask? [Read more here](https://github.com/asjadnaqvi/COVID19-European-Regional-Tracker#combining-data-across-countries)).
 
 ## About the script(s)
 
@@ -95,6 +95,6 @@ This work is licensed under a
 
 ## Thanks ...
 
-... to the [COVID19-European-Regional-Tracker](https://github.com/asjadnaqvi/COVID19-European-Regional-Tracker) for preparing the data.
+... to [Asjad Naqvi](https://github.com/asjadnaqvi) and the [COVID19-European-Regional-Tracker](https://github.com/asjadnaqvi/COVID19-European-Regional-Tracker) for preparing the data.
 
 ... to [Jan T. Sott (idleberg)](https://github.com/idleberg) for the markdown of the Creative Commons license text.
