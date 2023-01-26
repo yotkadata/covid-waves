@@ -9,14 +9,26 @@ import time
 from PIL import Image
 import math
 from settings import conf  # Import configuration defined in settings.py
+from includes import prepare as prep
 
 #
-# Update data
+# Update data if requested
 #
 
 if conf['update_data']:
-    from update_data import update_data
-    update_data()
+
+    # Import data
+    covid_raw = prep.import_data()
+
+    # Clean the imported data
+    covid_clean = prep.clean_data(covid_raw)
+
+    # Transform the data
+    covid_calc, covid_calc_weekly = prep.transform_data(covid_clean)
+
+    # Export data
+    prep.export_data(covid_calc, filename='covid-waves-data-clean', xls=False)
+    prep.export_data(covid_calc_weekly, filename='covid-waves-data-clean-weekly', xls=True)
 
 #
 # Set variables to calculate script running time and other tasks
