@@ -58,43 +58,10 @@ zoom = math.log(factor) / math.log(2) + 3
 if conf['mode'] != 'stitch':
     geo_nuts_level3, geo_countries = plot.import_geojson()
 
-##
-
-#
 # Import COVID-19 data from CSV
-#
-
 if conf['mode'] != 'stitch':
-    print("\nStarting import of CSV file.")
+    df, df_raw = plot.import_covid_data()
 
-    # Define string to be added to fór weekly metrics
-    append = '-weekly' if conf['metric'] in ['cases_pop_weekly', 'moving4w_pop', 'moving8w_pop'] else ''
-
-    # Define file name to be imported
-    file = 'data/covid-waves-data-clean' + append + '.csv'
-
-    # Import CSV
-    df_raw = pd.read_csv(file,
-                         parse_dates=['date'],
-                         usecols=['country', 'nuts_id', 'nuts_name', 'date', conf['metric']],
-                         header=0,
-                         )
-
-    print("File imported:", file)
-
-    # Create a copy of the dataframe to work with
-    df = df_raw.copy()
-
-##
-
-#
-# If set, reduce data set to requested time frame
-#
-
-if conf['mode'] != 'stitch' and conf['set_dates']:
-    df = df[(df['date'] >= conf['date_start']) & (df['date'] <= conf['date_end'])]
-
-##
 
 #
 # Export maps as images if selected mode is 'image'

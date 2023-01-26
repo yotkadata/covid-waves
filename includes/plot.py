@@ -2,6 +2,7 @@ import datetime as dt
 import json
 
 import imageio.v3 as iio
+import pandas as pd
 import plotly.graph_objects as go
 from PIL import Image
 from settings import conf  # Import configuration defined in settings.py
@@ -62,7 +63,7 @@ def calc_quantiles(df_q, column_q, normalized=True, base=5):
 
 
 #
-# Import GeoJson files
+# Function to import GeoJson files
 #
 def import_geojson():
 
@@ -79,6 +80,36 @@ def import_geojson():
     print("Done.")
 
     return geo_nuts_level3, geo_countries
+
+
+#
+# Function to import COVID-19 data from CSV
+#
+def import_covid_data():
+
+    print("\nStarting import of CSV file.")
+
+    # Define string to be added to fór weekly metrics
+    append = '-weekly' if conf['metric'] in ['cases_pop_weekly', 'moving4w_pop', 'moving8w_pop'] else ''
+
+    # Define file name to be imported
+    file = 'data/covid-waves-data-clean' + append + '.csv'
+
+    # Import CSV
+    df_raw = pd.read_csv(file,
+                         parse_dates=['date'],
+                         usecols=['country', 'nuts_id', 'nuts_name', 'date', conf['metric']],
+                         header=0,
+                         )
+
+    print("File imported:", file)
+
+    # If set, reduce data set to requested time frame
+    if conf['set_dates']:
+        df = df_raw.copy()
+        df = df[(df['date'] >= conf['date_start']) & (df['date'] <= conf['date_end'])]
+
+    return df, df_raw
 
 
 #
