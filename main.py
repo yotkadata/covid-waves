@@ -1,4 +1,3 @@
-import plotly.express as px
 import datetime as dt
 import pathlib
 import time
@@ -65,92 +64,10 @@ if conf['mode'] == 'image':
     plot.plot_images(df, df_raw, filepath_dt, performance, zoom, factor)
     # TODO: Better solution for performance, zoom, factor
 
-
-#
 # Create HTML animation if selected mode is HTML
-#
-
 if conf['mode'] == 'html':
-    print("\nConvert date to string for slider")
-
-    # Convert date to string for the slider
-    df['date_str'] = df['date'].apply(lambda x: str(x)[0:10])
-
-    # Calculate quintiles for the colorscale using whole or reduced dataframe
-    df_breaks = df if conf['colorscale'] == 'sample' else df_raw
-    breaks = plot.calc_quantiles(df_breaks, conf['metric'])
-
-    print("\nStart plotting.")
-
-    # Define variable for script statistics
-    performance['dates_processed'] = len(df['date'].unique())
-
-    # Get min and max dates of the whole dataset
-    first_date = df_raw['date'].min()
-    last_date = df_raw['date'].max()
-
-    # Start plotting
-    fig = px.choropleth_mapbox(
-        df,
-        locations='nuts_id',
-        geojson=geo_nuts_level3,
-        color=conf['metric'],
-        range_color=[0, df_breaks[conf['metric']].max()],
-        color_continuous_scale=[
-            [0, conf['colors'][0]],
-            [breaks[0.2], conf['colors'][1]],
-            [breaks[0.4], conf['colors'][2]],
-            [breaks[0.6], conf['colors'][3]],
-            [breaks[0.8], conf['colors'][4]],
-            [breaks[0.9], conf['colors'][5]],
-            [breaks[0.95], conf['colors'][6]],
-            [breaks[0.99], conf['colors'][7]],
-            [1, conf['colors'][8]]
-        ],
-        mapbox_style=conf['basemap'],
-        center={'lat': 57.245936, 'lon': 9.274491},
-        zoom=zoom,
-        template=plot.custom_template(factor),
-        animation_frame='date_str',
-        animation_group='nuts_id',
-        width=conf['width'],
-        height=conf['height'],
-    )
-
-    fig.update_layout(
-        title_text='<b>COVID-19 waves in Europe</b><br />'
-                   '<sup>' + conf['metric_desc'][conf['metric']] + '</sup>',
-        title_x=0.01,
-        title_y=0.96,
-        margin={'r': 0, 't': 0, 'l': 0, 'b': 0},
-        coloraxis_showscale=False,
-        coloraxis_colorbar=dict(title=''),
-        annotations=[
-            dict(
-                xref='paper',
-                yref='paper',
-                x=0.01,
-                y=0,
-                showarrow=False,
-                text='<b>Data:</b> COVID19-European-Regional-Tracker/Eurostat, '
-                     '<b>Graph:</b> Jan Kühn (https://yotka.org), '
-                     '<b>License:</b> CC by-nc-sa 4.0',
-            )]
-    )
-
-    fig.update_traces(
-        marker_line_width=0,
-    )
-
-    # Define path and file name for export
-    file = 'export/html/' + dt.datetime.now().strftime('%Y%m%d-%H%M%S') + '.html'
-
-    # Save output as HTML
-    fig.write_html(file)
-
-    print("Output saved to", file)
-
-##
+    plot.plot_html(df, df_raw, performance, zoom, factor)
+    # TODO: Better solution for performance, zoom, factor
 
 #
 # If selected, create animation from files in manually defined directory
