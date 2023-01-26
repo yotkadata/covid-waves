@@ -15,7 +15,7 @@ from settings import conf  # Import configuration defined in settings.py
 #
 def custom_template(factor=1):
 
-    custom_template = {
+    template = {
         'layout': go.Layout(
             font={
                 'family': 'Lato',
@@ -32,7 +32,7 @@ def custom_template(factor=1):
         )
     }
 
-    return custom_template
+    return template
 
 
 #
