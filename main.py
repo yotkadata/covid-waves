@@ -3,10 +3,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 import datetime as dt
 import json
-import imageio.v3 as iio
 import pathlib
 import time
-from PIL import Image
 import math
 from settings import conf  # Import configuration defined in settings.py
 from includes import prepare as prep
@@ -39,8 +37,10 @@ performance = {
     'start': time.time(),  # Start time to calculate script running time
     'dates_processed': 0,  # Create empty variable for calculation
     'duration_total': 0,  # Create empty variable for calculation
-    'now': dt.datetime.now(),  # Current datetime to be used for folder names etc.
 }
+
+# Current datetime to be used for folder names etc.
+filepath_dt = dt.datetime.now()
 
 # Calculate height in case it is set to 'auto'
 if conf['height'] == 'auto':
@@ -55,76 +55,6 @@ factor = conf[conf['zoom_adapt']] / default
 # So factor = 2 ^ (zoom - 3) and zoom = log(factor) / log(2) + 3
 zoom = math.log(factor) / math.log(2) + 3
 
-#
-# Define functions
-#
-
-# Stitch images to get an animation
-def stitch_animation(file_list, anim_path, animation_format=conf['animation_format'],
-                     fps=conf['animation_fps'], loop=conf['animation_loops'],
-                     params=None):
-    if params is None:
-        params = []
-
-    print("\nStarting to stitch images together for an animation.")
-
-    # Force webp format in case images are in webp
-    if conf['animation_format'] == 'gif':
-        if pathlib.Path(file_list[0]).suffix == '.webp':
-            animation_format = 'webp'
-            print("NOTICE: Animation format set to webp because images are in webp.")
-
-    # Join parameters to be added to file name
-    try:
-        iter(params)
-        file_params = '-' + '-'.join(params)
-    except TypeError:
-        print("{} is not iterable".format(params))
-        file_params = ''
-
-    # Create path and file name for animation
-    anim_path = str(anim_path) + '/' + \
-                str(performance['now'].strftime('%Y%m%d-%H%M%S')) + \
-                '-anim' + file_params + \
-                '-fps' + str(fps) + \
-                '.' + animation_format
-
-    images = []
-    image_count = 0
-
-    if animation_format == 'gif':
-        # Loop through image files and add them to 'images'
-        for anim_file_name in file_list:
-            images.append(iio.imread(anim_file_name))
-            image_count += 1
-
-        print("Done. Added", image_count, "images.")
-
-        print("Create animation.")
-
-        # Create animation
-        iio.imwrite(anim_path, images, fps=fps, loop=loop)
-
-    if animation_format == 'webp':
-        # Loop through image files and add them to 'images'
-        for img in file_list:
-            images.append(Image.open(img))
-            image_count += 1
-
-        # Separate the first image to later append the rest
-        img = images[0]
-
-        # Calculate duration based on the frame rate
-        fps_to_duration = int(round(1 / fps * 1000, 0))
-
-        # Create animation
-        img.save(anim_path, save_all=True, append_images=images[1:], duration=fps_to_duration, loop=loop,
-                 optimize=False, disposal=2, lossless=True)
-
-    print("Animation saved to", anim_path)
-
-
-##
 
 #
 # Define custom template for Plotly output
@@ -211,7 +141,7 @@ if conf['mode'] != 'stitch' and conf['set_dates']:
 if conf['mode'] == 'image':
 
     # Create folder
-    export_path = pathlib.Path('export/image/' + str(performance['now'].strftime('%Y%m%d-%H%M%S')))
+    export_path = pathlib.Path('export/image/' + str(filepath_dt.strftime('%Y%m%d-%H%M%S')))
     export_path.mkdir(parents=True, exist_ok=True)
 
     image_files = []
@@ -461,7 +391,7 @@ if conf['mode'] == 'image':
         export_path = pathlib.Path('export/animation/')
         export_path.mkdir(parents=True, exist_ok=True)
 
-        stitch_animation(image_files, export_path,
+        plot.stitch_animation(image_files, export_path, filepath_dt=filepath_dt,
                          params=[conf['resolution'], conf['metric'], str(conf['width']) + 'px'])
 
 ##
@@ -569,7 +499,7 @@ if conf['mode'] == 'stitch':
     image_files.sort()
 
     # Create animation
-    stitch_animation(image_files, export_path)
+    plot.stitch_animation(image_files, export_path, filepath_dt=filepath_dt)
 
 ##
 
