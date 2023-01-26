@@ -10,6 +10,7 @@ from PIL import Image
 import math
 from settings import conf  # Import configuration defined in settings.py
 from includes import prepare as prep
+from includes import plot
 
 #
 # Update data if requested
@@ -57,34 +58,6 @@ zoom = math.log(factor) / math.log(2) + 3
 #
 # Define functions
 #
-
-
-# Calculate quintiles for the colorscale
-def calc_quantiles(df_q, column_q, normalized=True, base=5):
-    # Steps to be used as break points
-    steps = [0, 0.2, 0.4, 0.6, 0.8, 0.9, 0.95, 0.99, 1]
-    breaks_q = {}
-
-    for step in range(len(steps)):
-        # Calculate quantiles based on the steps defined above
-        breaks_q[steps[step]] = df_q[column_q].quantile(steps[step])
-
-        # Round to next integer for low values (method from https://stackoverflow.com/a/2272174)
-        if breaks_q[steps[step]] < (1.5 * base):
-            breaks_q[steps[step]] = round(df_q[column_q].quantile(steps[step]))
-        # Round to next base for higher values
-        if (1.5 * base) <= breaks_q[steps[step]] < (10 * base):
-            breaks_q[steps[step]] = base * round(df_q[column_q].quantile(steps[step]) / base)
-        # Round to twice the base for very high values
-        if breaks_q[steps[step]] >= 10 * base:
-            breaks_q[steps[step]] = (2 * base) * round(df_q[column_q].quantile(steps[step]) / (2 * base))
-
-        # Normalize to values between 0 and 1 if selected
-        if normalized:
-            breaks_q[steps[step]] = (breaks_q[steps[step]] / df_q[column_q].max()).round(3)
-
-    return breaks_q
-
 
 # Stitch images to get an animation
 def stitch_animation(file_list, anim_path, animation_format=conf['animation_format'],
@@ -245,7 +218,7 @@ if conf['mode'] == 'image':
 
     # Calculate quintiles for the conf['colorscale'] using whole or reduced dataframe
     df_breaks = df if conf['colorscale'] == 'sample' else df_raw
-    breaks = calc_quantiles(df_breaks, conf['metric'], normalized=True)
+    breaks = plot.calc_quantiles(df_breaks, conf['metric'], normalized=True)
 
     print("\nStart plotting.\n")
 
@@ -355,7 +328,7 @@ if conf['mode'] == 'image':
             i += 1
 
         # Create annotations using not normalized break points
-        breaks_legend = calc_quantiles(df_breaks, conf['metric'], normalized=False)
+        breaks_legend = plot.calc_quantiles(df_breaks, conf['metric'], normalized=False)
 
         annotations = []
         i = 0
@@ -505,7 +478,7 @@ if conf['mode'] == 'html':
 
     # Calculate quintiles for the colorscale using whole or reduced dataframe
     df_breaks = df if conf['colorscale'] == 'sample' else df_raw
-    breaks = calc_quantiles(df_breaks, conf['metric'])
+    breaks = plot.calc_quantiles(df_breaks, conf['metric'])
 
     print("\nStart plotting.")
 
