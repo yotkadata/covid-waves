@@ -57,29 +57,6 @@ zoom = math.log(factor) / math.log(2) + 3
 
 
 #
-# Define custom template for Plotly output
-#
-
-custom_template = {
-    'layout': go.Layout(
-        font={
-            'family': 'Lato',
-            'size': 12*factor,
-            'color': '#1f1f1f',
-        },
-        title={
-            'font': {
-                'family': 'Lato',
-                'size': 24*factor,
-                'color': '#1f1f1f',
-            },
-        },
-    )
-}
-
-##
-
-#
 # Import GeoJson files
 #
 
@@ -204,7 +181,7 @@ if conf['mode'] == 'image':
             ],
         },
         margin={'r': 3, 't': 3, 'l': 3, 'b': 3},
-        template=custom_template,
+        template=plot.custom_template(factor),
         title_text='<b>COVID-19 waves in Europe</b><br />'
                    '<sup>' + conf['metric_desc'][conf['metric']] + '</sup>',
         title_x=0.01,
@@ -440,7 +417,7 @@ if conf['mode'] == 'html':
         mapbox_style=conf['basemap'],
         center={'lat': 57.245936, 'lon': 9.274491},
         zoom=zoom,
-        template=custom_template,
+        template=plot.custom_template(factor),
         animation_frame='date_str',
         animation_group='nuts_id',
         width=conf['width'],

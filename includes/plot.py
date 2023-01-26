@@ -1,7 +1,35 @@
-import imageio.v3 as iio
-from PIL import Image
 import datetime as dt
+
+import imageio.v3 as iio
+import plotly.graph_objects as go
+from PIL import Image
 from settings import conf  # Import configuration defined in settings.py
+
+
+#
+# Function to define custom template for Plotly output
+#
+def custom_template(factor=1):
+
+    custom_template = {
+        'layout': go.Layout(
+            font={
+                'family': 'Lato',
+                'size': 12*factor,
+                'color': '#1f1f1f',
+            },
+            title={
+                'font': {
+                    'family': 'Lato',
+                    'size': 24*factor,
+                    'color': '#1f1f1f',
+                },
+            },
+        )
+    }
+
+    return custom_template
+
 
 #
 # Function to calculate quintiles for the colorscale
