@@ -34,10 +34,12 @@ if conf['update_data']:
 # Set variables to calculate script running time and other tasks
 #
 
-start = time.time()  # Start time to calculate script running time
-dates_processed = 0  # Create empty variable for calculation
-duration_total = 0  # Create empty variable for calculation
-now = dt.datetime.now()  # Current datetime to be used for folder names etc.
+performance = {
+    'start': time.time(),  # Start time to calculate script running time
+    'dates_processed': 0,  # Create empty variable for calculation
+    'duration_total': 0,  # Create empty variable for calculation
+    'now': dt.datetime.now(),  # Current datetime to be used for folder names etc.
+}
 
 # Calculate height in case it is set to 'auto'
 if conf['height'] == 'auto':
@@ -109,7 +111,7 @@ def stitch_animation(file_list, anim_path, animation_format=conf['animation_form
 
     # Create path and file name for animation
     anim_path = str(anim_path) + '/' + \
-                str(now.strftime('%Y%m%d-%H%M%S')) + \
+                str(performance['now'].strftime('%Y%m%d-%H%M%S')) + \
                 '-anim' + file_params + \
                 '-fps' + str(fps) + \
                 '.' + animation_format
@@ -236,7 +238,7 @@ if conf['mode'] != 'stitch' and conf['set_dates']:
 if conf['mode'] == 'image':
 
     # Create folder
-    export_path = pathlib.Path('export/image/' + str(now.strftime('%Y%m%d-%H%M%S')))
+    export_path = pathlib.Path('export/image/' + str(performance['now'].strftime('%Y%m%d-%H%M%S')))
     export_path.mkdir(parents=True, exist_ok=True)
 
     image_files = []
@@ -466,13 +468,13 @@ if conf['mode'] == 'image':
         image_files.append(file)
 
         # Count dates processed and duration
-        dates_processed += 1
+        performance['dates_processed'] += 1
         duration = time.time() - time_start
-        duration_total = duration_total + duration
-        duration_left = ((duration_total / dates_processed) * (len(dates) - dates_processed))
+        performance['duration_total'] = performance['duration_total'] + duration
+        duration_left = ((performance['duration_total'] / performance['dates_processed']) * (len(dates) - performance['dates_processed']))
 
         print(f"Output saved to {file} (duration: {round(duration, 1)} seconds) "
-              f"{dates_processed} of {len(dates)} ({round(dates_processed / len(dates) * 100, 2)}%) "
+              f"{performance['dates_processed']} of {len(dates)} ({round(performance['dates_processed'] / len(dates) * 100, 2)}%) "
               f"left: ~{dt.timedelta(seconds=round(duration_left, 0))}")
 
     print("\nAll images saved.")
@@ -508,7 +510,7 @@ if conf['mode'] == 'html':
     print("\nStart plotting.")
 
     # Define variable for script statistics
-    dates_processed = len(df['date'].unique())
+    performance['dates_processed'] = len(df['date'].unique())
 
     # Get min and max dates of the whole dataset
     first_date = df_raw['date'].min()
@@ -602,14 +604,11 @@ if conf['mode'] == 'stitch':
 # Display statistics of script running time
 #
 
-# Grab currrent Ttime after running the script
-end = time.time()
-
 # Subtract start time from end time
-total_time = end - start
+total_time = time.time() - performance['start']
 
 print(f"\nScript running time: {round(total_time, 2)} seconds ({round(total_time / 60, 2)} minutes)")
 
-if dates_processed:
-    print(f"{dates_processed} days have been processed. "
-          f"That's {round(total_time / dates_processed, 2)} seconds per day.")
+if performance['dates_processed']:
+    print(f"{performance['dates_processed']} days have been processed. "
+          f"That's {round(total_time / performance['dates_processed'], 2)} seconds per day.")
