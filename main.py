@@ -2,7 +2,6 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import datetime as dt
-import json
 import pathlib
 import time
 import math
@@ -55,23 +54,9 @@ factor = conf[conf['zoom_adapt']] / default
 # So factor = 2 ^ (zoom - 3) and zoom = log(factor) / log(2) + 3
 zoom = math.log(factor) / math.log(2) + 3
 
-
-#
 # Import GeoJson files
-#
-
 if conf['mode'] != 'stitch':
-    print("\nImporting geo data.")
-
-    # Get geo data for NUTS regions (level 3)
-    file_name = 'data/NUTS_RG_' + conf['resolution'] + '_2016_4326.geojson'
-    geo_nuts_level3 = json.load(open(file_name, 'r'))
-
-    # Get geo data for countries
-    file_name = 'data/CNTR_RG_' + conf['resolution'] + '_2016_4326.geojson'
-    geo_countries = json.load(open(file_name, 'r'))
-
-    print("Done.")
+    geo_nuts_level3, geo_countries = plot.import_geojson()
 
 ##
 

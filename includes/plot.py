@@ -1,4 +1,5 @@
 import datetime as dt
+import json
 
 import imageio.v3 as iio
 import plotly.graph_objects as go
@@ -58,6 +59,26 @@ def calc_quantiles(df_q, column_q, normalized=True, base=5):
             breaks_q[steps[step]] = (breaks_q[steps[step]] / df_q[column_q].max()).round(3)
 
     return breaks_q
+
+
+#
+# Import GeoJson files
+#
+def import_geojson():
+
+    print("\nImporting geo data.")
+
+    # Get geo data for NUTS regions (level 3)
+    file_name = 'data/NUTS_RG_' + conf['resolution'] + '_2016_4326.geojson'
+    geo_nuts_level3 = json.load(open(file_name, 'r'))
+
+    # Get geo data for countries
+    file_name = 'data/CNTR_RG_' + conf['resolution'] + '_2016_4326.geojson'
+    geo_countries = json.load(open(file_name, 'r'))
+
+    print("Done.")
+
+    return geo_nuts_level3, geo_countries
 
 
 #
