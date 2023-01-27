@@ -111,9 +111,10 @@ def import_covid_data():
 
     print("File imported:", file)
 
+    df = df_raw.copy()
+
     # If set, reduce data set to requested time frame
     if conf['set_dates']:
-        df = df_raw.copy()
         df = df[(df['date'] >= conf['date_start']) & (df['date'] <= conf['date_end'])]
 
     return df, df_raw
