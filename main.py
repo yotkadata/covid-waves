@@ -1,10 +1,9 @@
 import datetime as dt
-import pathlib
 import time
-import math
 from settings import conf  # Import configuration defined in settings.py
 from includes import prepare as prep
 from includes import plot
+
 
 #
 # Update data if requested
@@ -46,11 +45,6 @@ if conf['height'] == 'auto':
 default = 1000 if conf['zoom_adapt'] == 'width' else 800
 factor = conf[conf['zoom_adapt']] / default
 
-# Calculate the zoom factor
-# Mapbox zoom is based on a log scale where zoom = 3 is ideal for our map at 1000px.
-# So factor = 2 ^ (zoom - 3) and zoom = log(factor) / log(2) + 3
-zoom = math.log(factor) / math.log(2) + 3
-
 # Import GeoJson files
 if conf['mode'] != 'stitch':
     geo_nuts_level3, geo_countries = plot.import_geojson()
@@ -61,13 +55,13 @@ if conf['mode'] != 'stitch':
 
 # Export maps as images if selected mode is 'image'
 if conf['mode'] == 'image':
-    plot.plot_images(df, df_raw, filepath_dt, performance, zoom, factor)
-    # TODO: Better solution for performance, zoom, factor
+    plot.plot_images(df, df_raw, filepath_dt, performance, factor)
+    # TODO: Better solution for performance, factor
 
 # Create HTML animation if selected mode is HTML
 if conf['mode'] == 'html':
-    plot.plot_html(df, df_raw, performance, zoom, factor)
-    # TODO: Better solution for performance, zoom, factor
+    plot.plot_html(df, df_raw, performance, factor)
+    # TODO: Better solution for performance, factor
 
 # If selected, create animation from files in manually defined directory
 if conf['mode'] == 'stitch':

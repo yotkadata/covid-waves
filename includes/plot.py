@@ -9,6 +9,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from PIL import Image
 from settings import conf  # Import configuration defined in settings.py
+from includes import misc
 
 
 #
@@ -118,7 +119,7 @@ def import_covid_data():
 #
 # Function to export maps as images if selected mode is 'image'
 #
-def plot_images(df, df_raw, filepath_dt, performance, zoom, factor):
+def plot_images(df, df_raw, filepath_dt, performance, factor):
 
     # Get GeoJSON data
     geo_nuts_level3, geo_countries = import_geojson()
@@ -132,6 +133,9 @@ def plot_images(df, df_raw, filepath_dt, performance, zoom, factor):
     # Calculate quintiles for the conf['colorscale'] using whole or reduced dataframe
     df_breaks = df if conf['colorscale'] == 'sample' else df_raw
     breaks = calc_quantiles(df_breaks, conf['metric'], normalized=True)
+
+    # Get zoom factor for the map
+    zoom = misc.calc_zoom()
 
     print("\nStart plotting.\n")
 
@@ -464,7 +468,7 @@ def stitch_animation(file_list, animation_format=conf['animation_format'],
 #
 # Function to create HTML animation (EXPERIMENTAL)
 #
-def plot_html(df, df_raw, performance, zoom, factor):
+def plot_html(df, df_raw, performance, factor):
 
     print("\nConvert date to string for slider")
 
@@ -474,6 +478,9 @@ def plot_html(df, df_raw, performance, zoom, factor):
     # Calculate quintiles for the colorscale using whole or reduced dataframe
     df_breaks = df if conf['colorscale'] == 'sample' else df_raw
     breaks = calc_quantiles(df_breaks, conf['metric'])
+
+    # Get zoom factor for the map
+    zoom = misc.calc_zoom()
 
     print("\nStart plotting.")
 
