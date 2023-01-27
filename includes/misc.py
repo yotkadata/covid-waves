@@ -60,3 +60,19 @@ def calc_zoom():
     zoom = math.log(factor) / math.log(2) + 3
 
     return zoom
+
+
+#
+# Function to print performance information
+#
+def performance_show():
+
+    # Display statistics of script running time
+    # Subtract start time from end time
+    total_time = time.time() - conf['start_time']
+
+    print(f"\nScript running time: {round(total_time, 2)} seconds ({round(total_time / 60, 2)} minutes)")
+
+    if conf['dates_processed']:
+        print(f"{conf['dates_processed']} days have been processed. "
+              f"That's {round(total_time / conf['dates_processed'], 2)} seconds per day.")

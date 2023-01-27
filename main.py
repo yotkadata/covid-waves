@@ -52,14 +52,7 @@ def main():
         plot.stitch_animation(image_files, filepath_dt=conf['filepath_dt'])
 
     # Display statistics of script running time
-    # Subtract start time from end time
-    total_time = time.time() - conf['start_time']
-
-    print(f"\nScript running time: {round(total_time, 2)} seconds ({round(total_time / 60, 2)} minutes)")
-
-    if conf['dates_processed']:
-        print(f"{conf['dates_processed']} days have been processed. "
-              f"That's {round(total_time / conf['dates_processed'], 2)} seconds per day.")
+    misc.performance_show()
 
 
 if __name__ == "__main__":
