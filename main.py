@@ -1,5 +1,3 @@
-import time
-
 import includes.prepare as prep
 import includes.plot as plot
 import includes.misc as misc
