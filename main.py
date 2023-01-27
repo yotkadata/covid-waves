@@ -41,10 +41,6 @@ filepath_dt = dt.datetime.now()
 if conf['height'] == 'auto':
     conf['height'] = conf['width'] * conf['height_scale']
 
-# Calculate factor for resizing, based on the default width of 1000px or height of 800px
-default = 1000 if conf['zoom_adapt'] == 'width' else 800
-factor = conf[conf['zoom_adapt']] / default
-
 # Import GeoJson files
 if conf['mode'] != 'stitch':
     geo_nuts_level3, geo_countries = plot.import_geojson()
@@ -55,13 +51,13 @@ if conf['mode'] != 'stitch':
 
 # Export maps as images if selected mode is 'image'
 if conf['mode'] == 'image':
-    plot.plot_images(df, df_raw, filepath_dt, performance, factor)
-    # TODO: Better solution for performance, factor
+    plot.plot_images(df, df_raw, filepath_dt, performance)
+    # TODO: Better solution for performance
 
 # Create HTML animation if selected mode is HTML
 if conf['mode'] == 'html':
-    plot.plot_html(df, df_raw, performance, factor)
-    # TODO: Better solution for performance, factor
+    plot.plot_html(df, df_raw, performance)
+    # TODO: Better solution for performance
 
 # If selected, create animation from files in manually defined directory
 if conf['mode'] == 'stitch':

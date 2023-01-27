@@ -15,7 +15,9 @@ from includes import misc
 #
 # Function to define custom template for Plotly output
 #
-def custom_template(factor=1):
+def custom_template():
+
+    factor = misc.calc_factor()
 
     template = {
         'layout': go.Layout(
@@ -119,7 +121,7 @@ def import_covid_data():
 #
 # Function to export maps as images if selected mode is 'image'
 #
-def plot_images(df, df_raw, filepath_dt, performance, factor):
+def plot_images(df, df_raw, filepath_dt, performance):
 
     # Get GeoJSON data
     geo_nuts_level3, geo_countries = import_geojson()
@@ -133,6 +135,9 @@ def plot_images(df, df_raw, filepath_dt, performance, factor):
     # Calculate quintiles for the conf['colorscale'] using whole or reduced dataframe
     df_breaks = df if conf['colorscale'] == 'sample' else df_raw
     breaks = calc_quantiles(df_breaks, conf['metric'], normalized=True)
+
+    # Get resize factor
+    factor = misc.calc_factor()
 
     # Get zoom factor for the map
     zoom = misc.calc_zoom()
@@ -190,7 +195,7 @@ def plot_images(df, df_raw, filepath_dt, performance, factor):
             ],
         },
         margin={'r': 3, 't': 3, 'l': 3, 'b': 3},
-        template=custom_template(factor),
+        template=custom_template(),
         title_text='<b>COVID-19 waves in Europe</b><br />'
                    '<sup>' + conf['metric_desc'][conf['metric']] + '</sup>',
         title_x=0.01,
@@ -468,7 +473,7 @@ def stitch_animation(file_list, animation_format=conf['animation_format'],
 #
 # Function to create HTML animation (EXPERIMENTAL)
 #
-def plot_html(df, df_raw, performance, factor):
+def plot_html(df, df_raw, performance):
 
     print("\nConvert date to string for slider")
 
@@ -511,7 +516,7 @@ def plot_html(df, df_raw, performance, factor):
         mapbox_style=conf['basemap'],
         center={'lat': 57.245936, 'lon': 9.274491},
         zoom=zoom,
-        template=custom_template(factor),
+        template=custom_template(),
         animation_frame='date_str',
         animation_group='nuts_id',
         width=conf['width'],
