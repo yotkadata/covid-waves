@@ -367,20 +367,33 @@ def plot_images(df, df_raw, filepath_dt, performance, zoom, factor):
 
     # Create animation
     if conf['animation']:
-        # Create folder
-        export_path = pathlib.Path('export/animation/')
-        export_path.mkdir(parents=True, exist_ok=True)
-
-        stitch_animation(image_files, export_path, filepath_dt=filepath_dt,
+        stitch_animation(image_files, filepath_dt=filepath_dt,
                          params=[conf['resolution'], conf['metric'], str(conf['width']) + 'px'])
+
+
+#
+# Function to prepare list of existing files for animation
+#
+def animation_prepare_list(searchpath=conf['manual_path']):
+
+    # Define path to look for image files
+    image_files = list(pathlib.Path(searchpath).glob('*.*'))
+
+    # Sort files
+    image_files.sort()
+
+    return image_files
 
 
 #
 # Function to stitch images to get an animation
 #
-def stitch_animation(file_list, anim_path, animation_format=conf['animation_format'],
+def stitch_animation(file_list, animation_format=conf['animation_format'],
                      fps=conf['animation_fps'], loop=conf['animation_loops'],
                      filepath_dt=None, params=None):
+
+    print("\nStarting to stitch images together for an animation.")
+
     if params is None:
         params = []
 
@@ -388,7 +401,9 @@ def stitch_animation(file_list, anim_path, animation_format=conf['animation_form
     if filepath_dt is None:
         filepath_dt = dt.datetime.now()
 
-    print("\nStarting to stitch images together for an animation.")
+    # Create folder
+    anim_path = pathlib.Path('export/animation/')
+    anim_path.mkdir(parents=True, exist_ok=True)
 
     # Force webp format in case images are in webp
     if conf['animation_format'] == 'gif':

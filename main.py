@@ -69,26 +69,14 @@ if conf['mode'] == 'html':
     plot.plot_html(df, df_raw, performance, zoom, factor)
     # TODO: Better solution for performance, zoom, factor
 
-#
 # If selected, create animation from files in manually defined directory
-#
-
 if conf['mode'] == 'stitch':
-    # Create folder
-    export_path = pathlib.Path('export/animation/')
-    export_path.mkdir(parents=True, exist_ok=True)
-
-    # Define path to look for image files
-    search_path = conf['manual_path'] + '/*'
-    image_files = list(pathlib.Path(conf['manual_path']).glob('*.*'))
-
-    # Sort files
-    image_files.sort()
+    # Prepare file list
+    image_files = plot.animation_prepare_list()
 
     # Create animation
-    plot.stitch_animation(image_files, export_path, filepath_dt=filepath_dt)
+    plot.stitch_animation(image_files, filepath_dt=filepath_dt)
 
-##
 
 #
 # Display statistics of script running time
