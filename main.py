@@ -24,15 +24,9 @@ if conf['update_data']:
     prep.export_data(covid_calc, filename='covid-waves-data-clean', xls=False)
     prep.export_data(covid_calc_weekly, filename='covid-waves-data-clean-weekly', xls=True)
 
-#
 # Set variables to calculate script running time and other tasks
-#
-
-performance = {
-    'start': time.time(),  # Start time to calculate script running time
-    'dates_processed': 0,  # Create empty variable for calculation
-    'duration_total': 0,  # Create empty variable for calculation
-}
+start_time = time.time()  # Start time to calculate script running time
+dates_processed = 0  # Create empty variable for calculation
 
 # Current datetime to be used for folder names etc.
 filepath_dt = dt.datetime.now()
@@ -51,13 +45,11 @@ if conf['mode'] != 'stitch':
 
 # Export maps as images if selected mode is 'image'
 if conf['mode'] == 'image':
-    plot.plot_images(df, df_raw, filepath_dt, performance)
-    # TODO: Better solution for performance
+    dates_processed = plot.plot_images(df, df_raw, filepath_dt)
 
 # Create HTML animation if selected mode is HTML
 if conf['mode'] == 'html':
-    plot.plot_html(df, df_raw, performance)
-    # TODO: Better solution for performance
+    dates_processed = plot.plot_html(df, df_raw)
 
 # If selected, create animation from files in manually defined directory
 if conf['mode'] == 'stitch':
@@ -67,16 +59,12 @@ if conf['mode'] == 'stitch':
     # Create animation
     plot.stitch_animation(image_files, filepath_dt=filepath_dt)
 
-
-#
 # Display statistics of script running time
-#
-
 # Subtract start time from end time
-total_time = time.time() - performance['start']
+total_time = time.time() - start_time
 
 print(f"\nScript running time: {round(total_time, 2)} seconds ({round(total_time / 60, 2)} minutes)")
 
-if performance['dates_processed']:
-    print(f"{performance['dates_processed']} days have been processed. "
-          f"That's {round(total_time / performance['dates_processed'], 2)} seconds per day.")
+if dates_processed:
+    print(f"{dates_processed} days have been processed. "
+          f"That's {round(total_time / dates_processed, 2)} seconds per day.")

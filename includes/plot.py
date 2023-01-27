@@ -121,7 +121,7 @@ def import_covid_data():
 #
 # Function to export maps as images if selected mode is 'image'
 #
-def plot_images(df, df_raw, filepath_dt, performance):
+def plot_images(df, df_raw, filepath_dt):
 
     # Get GeoJSON data
     geo_nuts_level3, geo_countries = import_geojson()
@@ -270,6 +270,10 @@ def plot_images(df, df_raw, filepath_dt, performance):
 
     print("Created basic map for all images.")
 
+    # Set variables to calculate time left
+    duration_total = 0
+    dates_processed = 0
+
     # Update the map for all dates and export the image
     for date in dates:
 
@@ -360,16 +364,14 @@ def plot_images(df, df_raw, filepath_dt, performance):
         image_files.append(file)
 
         # Count dates processed and duration
-        performance['dates_processed'] += 1
+        dates_processed += 1
         duration = time.time() - time_start
-        performance['duration_total'] = performance['duration_total'] + duration
-        duration_left = (performance["duration_total"] / performance["dates_processed"]) * (
-                len(dates) - performance["dates_processed"]
-        )
+        duration_total = duration_total + duration
+        duration_left = (duration_total / dates_processed) * (len(dates) - dates_processed)
 
         print(f"Output saved to {file} (duration: {round(duration, 1)} seconds) "
-              f"{performance['dates_processed']} of {len(dates)} "
-              f"({round(performance['dates_processed'] / len(dates) * 100, 2)}%) "
+              f"{dates_processed} of {len(dates)} "
+              f"({round(dates_processed / len(dates) * 100, 2)}%) "
               f"left: ~{dt.timedelta(seconds=round(duration_left, 0))}")
 
     print("\nAll images saved.")
@@ -378,6 +380,8 @@ def plot_images(df, df_raw, filepath_dt, performance):
     if conf['animation']:
         stitch_animation(image_files, filepath_dt=filepath_dt,
                          params=[conf['resolution'], conf['metric'], str(conf['width']) + 'px'])
+
+    return dates_processed
 
 
 #
@@ -473,7 +477,7 @@ def stitch_animation(file_list, animation_format=conf['animation_format'],
 #
 # Function to create HTML animation (EXPERIMENTAL)
 #
-def plot_html(df, df_raw, performance):
+def plot_html(df, df_raw):
 
     print("\nConvert date to string for slider")
 
@@ -490,7 +494,7 @@ def plot_html(df, df_raw, performance):
     print("\nStart plotting.")
 
     # Define variable for script statistics
-    performance['dates_processed'] = len(df['date'].unique())
+    dates_processed = len(df['date'].unique())
 
     # Get GeoJSON data
     geo_nuts_level3, geo_countries = import_geojson()
@@ -555,3 +559,5 @@ def plot_html(df, df_raw, performance):
     fig.write_html(file)
 
     print("Output saved to", file)
+
+    return dates_processed
