@@ -1,8 +1,9 @@
 import datetime as dt
 import time
+
+import includes.prepare as prep
+import includes.plot as plot
 from settings import conf  # Import configuration defined in settings.py
-from includes import prepare as prep
-from includes import plot
 
 
 #

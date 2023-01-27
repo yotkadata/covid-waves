@@ -1,10 +1,7 @@
-#
-# Import necessary libraries
-#
-
 import pandas as pd
-from settings import conf  # Import configuration defined in settings.py
 import requests
+
+from settings import conf  # Import configuration defined in settings.py
 
 
 #

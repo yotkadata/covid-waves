@@ -5,11 +5,12 @@ import time
 
 import imageio.v3 as iio
 import pandas as pd
+import PIL.Image as Image
 import plotly.express as px
 import plotly.graph_objects as go
-from PIL import Image
+
+import includes.misc as misc
 from settings import conf  # Import configuration defined in settings.py
-from includes import misc
 
 
 #
