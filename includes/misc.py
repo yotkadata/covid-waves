@@ -1,6 +1,35 @@
+import datetime as dt
 import math
+import time
 
 from settings import conf  # Import configuration defined in settings.py
+
+
+#
+# Function to get configuration defaults
+#
+def conf_defaults():
+
+    # Calculate height in case it is set to 'auto'
+    if conf['height'] == 'auto':
+        conf['height'] = conf['width'] * conf['height_scale']
+
+    return conf
+
+
+#
+# Function to set performance values
+#
+def conf_performance(conf):
+
+    # Set variables to calculate script running time and other tasks
+    conf['start_time'] = time.time()  # Start time to calculate script running time
+    conf['dates_processed'] = 0  # Create empty variable for calculation
+
+    # Current datetime to be used for folder names etc.
+    conf['filepath_dt'] = dt.datetime.now()
+
+    return conf
 
 
 #
