@@ -20,16 +20,16 @@ def conf_defaults():
 #
 # Function to set performance values
 #
-def conf_performance(conf):
+def conf_performance(config):
 
     # Set variables to calculate script running time and other tasks
-    conf['start_time'] = time.time()  # Start time to calculate script running time
-    conf['dates_processed'] = 0  # Create empty variable for calculation
+    config['start_time'] = time.time()  # Start time to calculate script running time
+    config['dates_processed'] = 0  # Create empty variable for calculation
 
     # Current datetime to be used for folder names etc.
-    conf['filepath_dt'] = dt.datetime.now()
+    config['filepath_dt'] = dt.datetime.now()
 
-    return conf
+    return config
 
 
 #
@@ -71,8 +71,12 @@ def performance_show():
     # Subtract start time from end time
     total_time = time.time() - conf['start_time']
 
-    print(f"\nScript running time: {round(total_time, 2)} seconds ({round(total_time / 60, 2)} minutes)")
+    print(
+        f"\nScript running time: {round(total_time, 2)} seconds ({round(total_time / 60, 2)} minutes)"
+    )
 
     if conf['dates_processed']:
-        print(f"{conf['dates_processed']} days have been processed. "
-              f"That's {round(total_time / conf['dates_processed'], 2)} seconds per day.")
+        print(
+            f"{conf['dates_processed']} days have been processed. "
+            f"That's {round(total_time / conf['dates_processed'], 2)} seconds per day."
+        )

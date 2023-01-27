@@ -7,40 +7,58 @@ from settings import conf  # Import configuration defined in settings.py
 #
 # Function to get COVID-19 data
 #
-
 def import_data():
 
     print("Get COVID-19 data. This may take a while.")
 
     # If settings say so, refresh the data source
     if not conf['refresh_source']:
-        print("Skipping external refresh of the data. (To change this, adjust 'refresh_source' setting.)")
+        print(
+            "Skipping external refresh of the data. (To change this, adjust 'refresh_source' setting.)"
+        )
     else:
         import_refresh_source()
 
     print("Start data import.")
 
     # Import CSV with COVID-19 data
-    covid_raw = pd.read_csv('data/european-regional-tracker.csv',
-                            sep=';',
-                            decimal='.',
-                            parse_dates=['date'],
-                            usecols=['country', 'nuts_id', 'nuts_name', 'date', 'population', 'cases_daily'],
-                            header=0,
-                            )
+    covid_raw = pd.read_csv(
+        'data/european-regional-tracker.csv',
+        sep=';',
+        decimal='.',
+        parse_dates=['date'],
+        usecols=[
+            'country',
+            'nuts_id',
+            'nuts_name',
+            'date',
+            'population',
+            'cases_daily',
+        ],
+        header=0,
+    )
 
     # Set column names
-    covid_raw.columns = ['country', 'nuts_id', 'nuts_name', 'date', 'population', 'cases']
+    covid_raw.columns = [
+        'country',
+        'nuts_id',
+        'nuts_name',
+        'date',
+        'population',
+        'cases',
+    ]
 
     print("Import done.")
 
-    #
     # If selected above, reduce the dataset to selected time frame
-    #
-
     if conf['limit_dates']:
-        print(f"Reducing dataset to timframe between {conf['data_start']} and {conf['data_end']}")
-        covid_raw = covid_raw[(covid_raw['date'] >= conf['data_start']) & (covid_raw['date'] <= conf['data_end'])]
+        print(
+            f"Reducing dataset to timframe between {conf['data_start']} and {conf['data_end']}"
+        )
+        covid_raw = covid_raw[
+            (covid_raw['date'] >= conf['data_start'])
+            & (covid_raw['date'] <= conf['data_end'])
+        ]
         print("Done.")
 
     return covid_raw
@@ -49,15 +67,16 @@ def import_data():
 #
 # Function to refresh COVID-19 data from source
 #
-
 def import_refresh_source():
 
     print("Refresh data from GitHub: Start download.")
 
     # COVID19-European-Regional-Tracker
     # https://github.com/asjadnaqvi/COVID19-European-Regional-Tracker
-    remote_url = 'https://raw.githubusercontent.com/asjadnaqvi/COVID19-European-Regional-Tracker/master/04_master' \
-                 '/csv_nuts/EUROPE_COVID19_master.csv'
+    remote_url = (
+        'https://raw.githubusercontent.com/asjadnaqvi/COVID19-European-Regional-Tracker/master/04_master'
+        '/csv_nuts/EUROPE_COVID19_master.csv'
+    )
     local_file = 'data/european-regional-tracker.csv'
 
     # Make http request for remote file data
@@ -73,6 +92,7 @@ def import_refresh_source():
 #
 # Function to clean data after import
 #
+
 
 def clean_data(covid_raw):
 
@@ -102,6 +122,7 @@ def clean_data(covid_raw):
 # Function to remove negative values
 #
 
+
 def clean_remove_neg(covid_clean):
 
     # Remove rows with negative values
@@ -111,8 +132,10 @@ def clean_remove_neg(covid_clean):
     covid_clean = covid_clean[covid_clean['cases'] >= 0]
     length_after = len(covid_clean)
 
-    print(f"\nRemoved {length_before - length_after} rows with values below 0."
-          f"\n{length_after} rows left.")
+    print(
+        f"\nRemoved {length_before - length_after} rows with values below 0."
+        f"\n{length_after} rows left."
+    )
 
     return covid_clean
 
@@ -121,12 +144,22 @@ def clean_remove_neg(covid_clean):
 # Function to remove NUTS regions irrelevant to the map
 #
 
+
 def clean_remove_nuts(covid_clean):
 
     print("\nRemove NUTS regions irrelevant to the map.")
 
     # Mostly oversea territories
-    remove_nuts = ['ES707', 'ES709', 'PT300', 'FRY10', 'FRY20', 'FRY30', 'FRY40', 'FRY50']
+    remove_nuts = [
+        'ES707',
+        'ES709',
+        'PT300',
+        'FRY10',
+        'FRY20',
+        'FRY30',
+        'FRY40',
+        'FRY50',
+    ]
     covid_clean = covid_clean[~covid_clean['nuts_id'].isin(remove_nuts)]
 
     print(f"Removed {len(remove_nuts)} NUTS regions, leaving {len(covid_clean)} rows.")
@@ -137,6 +170,7 @@ def clean_remove_nuts(covid_clean):
 #
 # Function to remove outliers in each NUTS id group
 #
+
 
 def clean_outliers(covid_clean):
 
@@ -154,9 +188,10 @@ def clean_outliers(covid_clean):
     #     that date. That way we get outliers in that timeframe.
     # (3) Lastly exclude all rows whose calculated value is more than five times the standard deviation for that
     #     timeframe, i.e. we only catch extreme outliers.
-    df_out['is_outlier'] = df_out.groupby('nuts_id')['cases_pop'] \
-        .transform(lambda x: (x - x.rolling(120, min_periods=15, center=True).mean()).abs()
-                             > 5 * x.rolling(120, min_periods=15, center=True).std())
+    df_out['is_outlier'] = df_out.groupby('nuts_id')['cases_pop'].transform(
+        lambda x: (x - x.rolling(120, min_periods=15, center=True).mean()).abs()
+        > 5 * x.rolling(120, min_periods=15, center=True).std()
+    )
 
     # Include only outlier rows with more than 100 cases per million population
     df_out = df_out[df_out['is_outlier'] & (df_out['cases_pop'] >= 100)]
@@ -171,6 +206,7 @@ def clean_outliers(covid_clean):
 #
 # Function to do calculations to transform the data
 #
+
 
 def transform_data(covid_clean):
     print("\nDo some calculations.")
@@ -215,6 +251,7 @@ def transform_data(covid_clean):
 # From https://stackoverflow.com/a/62690665
 #
 
+
 def transform_missing_dates(covid_calc):
 
     print("\nAdd missing dates for each nuts_id group.")
@@ -224,11 +261,16 @@ def transform_missing_dates(covid_calc):
     date_max = covid_calc['date'].max()
 
     # Fill in missing dates for each group
-    covid_calc = (covid_calc.set_index('date')
-                  .groupby('nuts_id')
-                  .apply(lambda x: x.reindex(pd.date_range(date_min, date_max, freq='D', name='date')))
-                  .drop('nuts_id', axis=1)
-                  )
+    covid_calc = (
+        covid_calc.set_index('date')
+        .groupby('nuts_id')
+        .apply(
+            lambda x: x.reindex(
+                pd.date_range(date_min, date_max, freq='D', name='date')
+            )
+        )
+        .drop('nuts_id', axis=1)
+    )
 
     # Reset index
     covid_calc = covid_calc.reset_index()
@@ -242,6 +284,7 @@ def transform_missing_dates(covid_calc):
 # Function to fill missing values in 'static' columns
 # (first forwards, than backwards)
 #
+
 
 def transform_fill_missing(covid_calc):
 
@@ -264,6 +307,7 @@ def transform_fill_missing(covid_calc):
 # From https://stackoverflow.com/a/58844499
 #
 
+
 def transform_interpolate(covid_calc):
 
     print("\nInterpolate missing values in 'dynamic' columns.")
@@ -273,8 +317,9 @@ def transform_interpolate(covid_calc):
 
     # Loop through columns and interpolate missing values
     for fill_col in interpolate:
-        covid_calc[fill_col] = covid_calc.groupby('nuts_id') \
-            .apply(lambda x: x[[fill_col]].interpolate(method='linear', limit_area='inside'))
+        covid_calc[fill_col] = covid_calc.groupby('nuts_id').apply(
+            lambda x: x[[fill_col]].interpolate(method='linear', limit_area='inside')
+        )
 
     print("Done.")
 
@@ -304,16 +349,19 @@ def transform_fork_weekly(covid_calc):
     print("\n'Fork' weekly aggregates before further calculations")
 
     # Group by nuts_id and aggregate by week
-    covid_calc_weekly = (covid_calc
-                         .groupby(['nuts_id', pd.Grouper(key='date', freq='W-MON'), 'country', 'nuts_name'])[
-                             ['cases', 'cases_pop']]
-                         .sum()
-                         .reset_index()
-                         .sort_values('date')
-                         )
+    covid_calc_weekly = (
+        covid_calc.groupby(
+            ['nuts_id', pd.Grouper(key='date', freq='W-MON'), 'country', 'nuts_name']
+        )[['cases', 'cases_pop']]
+        .sum()
+        .reset_index()
+        .sort_values('date')
+    )
 
     # Rename columns in weekly data
-    covid_calc_weekly = covid_calc_weekly.rename(columns={'cases': 'cases_w', 'cases_pop': 'cases_pop_w'})
+    covid_calc_weekly = covid_calc_weekly.rename(
+        columns={'cases': 'cases_w', 'cases_pop': 'cases_pop_w'}
+    )
 
     print("Done.")
 
@@ -329,14 +377,17 @@ def transform_moving_avg(covid_calc, period='daily'):
 
         print("\nCalculate 7/14-day moving average for each NUTS ID.")
 
-        covid_calc['moving7d_pop'] = (covid_calc.groupby('nuts_id')['cases_pop']
-                                      .transform(lambda x: x.rolling(7, 1).mean().round(2)))
+        covid_calc['moving7d_pop'] = covid_calc.groupby('nuts_id')[
+            'cases_pop'
+        ].transform(lambda x: x.rolling(7, 1).mean().round(2))
 
-        covid_calc['moving14d_pop'] = (covid_calc.groupby('nuts_id')['cases_pop']
-                                       .transform(lambda x: x.rolling(14, 1).mean().round(2)))
+        covid_calc['moving14d_pop'] = covid_calc.groupby('nuts_id')[
+            'cases_pop'
+        ].transform(lambda x: x.rolling(14, 1).mean().round(2))
 
-        covid_calc['moving28d_pop'] = (covid_calc.groupby('nuts_id')['cases_pop']
-                                       .transform(lambda x: x.rolling(28, 1).mean().round(2)))
+        covid_calc['moving28d_pop'] = covid_calc.groupby('nuts_id')[
+            'cases_pop'
+        ].transform(lambda x: x.rolling(28, 1).mean().round(2))
 
         print("Done.")
 
@@ -345,12 +396,16 @@ def transform_moving_avg(covid_calc, period='daily'):
     if period == 'weekly':
 
         # Calculate 4- and 8-week moving average for aggregated weekly data
-        print("\nCalculate 4- and 8-week moving average for each NUTS ID (weekly data).")
+        print(
+            "\nCalculate 4- and 8-week moving average for each NUTS ID (weekly data)."
+        )
 
-        covid_calc['moving4w_pop'] = (covid_calc.groupby('nuts_id')['cases_pop_w']
-                                             .transform(lambda x: x.rolling(4, 2).mean().round(2)))
-        covid_calc['moving8w_pop'] = (covid_calc.groupby('nuts_id')['cases_pop_w']
-                                             .transform(lambda x: x.rolling(8, 4).mean().round(2)))
+        covid_calc['moving4w_pop'] = covid_calc.groupby('nuts_id')[
+            'cases_pop_w'
+        ].transform(lambda x: x.rolling(4, 2).mean().round(2))
+        covid_calc['moving8w_pop'] = covid_calc.groupby('nuts_id')[
+            'cases_pop_w'
+        ].transform(lambda x: x.rolling(8, 4).mean().round(2))
 
         print("Done.")
 
@@ -362,14 +417,20 @@ def transform_moving_avg(covid_calc, period='daily'):
 #
 def transform_cumulated(covid_calc, period='daily'):
 
-    print(f"\nCalculate cumulated cases per population for each NUTS ID. ({period} data)")
+    print(
+        f"\nCalculate cumulated cases per population for each NUTS ID. ({period} data)"
+    )
 
     if period == 'daily':
 
-        covid_calc['cumulated_pop'] = covid_calc.groupby('nuts_id')['cases_pop'].transform(pd.Series.cumsum)
+        covid_calc['cumulated_pop'] = covid_calc.groupby('nuts_id')[
+            'cases_pop'
+        ].transform(pd.Series.cumsum)
 
         # Forward fill cumulated values to the end
-        covid_calc['cumulated_pop'] = covid_calc.groupby('nuts_id')['cumulated_pop'].ffill()
+        covid_calc['cumulated_pop'] = covid_calc.groupby('nuts_id')[
+            'cumulated_pop'
+        ].ffill()
 
         print("Done.")
 
@@ -377,11 +438,14 @@ def transform_cumulated(covid_calc, period='daily'):
 
     if period == 'weekly':
 
-        covid_calc['cumulated_pop_w'] = covid_calc.groupby('nuts_id')['cases_pop_w'].transform(
-            pd.Series.cumsum)
+        covid_calc['cumulated_pop_w'] = covid_calc.groupby('nuts_id')[
+            'cases_pop_w'
+        ].transform(pd.Series.cumsum)
 
         # Forward fill cumulated values to the end
-        covid_calc['cumulated_pop_w'] = covid_calc.groupby('nuts_id')['cumulated_pop_w'].ffill()
+        covid_calc['cumulated_pop_w'] = covid_calc.groupby('nuts_id')[
+            'cumulated_pop_w'
+        ].ffill()
 
         print("Done.")
 
@@ -393,12 +457,21 @@ def transform_cumulated(covid_calc, period='daily'):
 #
 def transform_fill_no_data(covid_calc, period='daily'):
 
-    print(f"\nFill still missing values with a constant for 'no data available' ({period} data)")
+    print(
+        f"\nFill still missing values with a constant for 'no data available' ({period} data)"
+    )
 
     if period == 'daily':
 
         # Daily data: Define columns to be filled
-        no_data = ['cases', 'cases_pop', 'moving7d_pop', 'moving14d_pop', 'moving28d_pop', 'cumulated_pop']
+        no_data = [
+            'cases',
+            'cases_pop',
+            'moving7d_pop',
+            'moving14d_pop',
+            'moving28d_pop',
+            'cumulated_pop',
+        ]
 
         # Loop through columns and fill them
         for fill_col in no_data:
@@ -411,7 +484,13 @@ def transform_fill_no_data(covid_calc, period='daily'):
     if period == 'weekly':
 
         # Weekly data: Define columns to be filled
-        no_data = ['cases_w', 'cases_pop_w', 'moving4w_pop', 'moving8w_pop', 'cumulated_pop_w']
+        no_data = [
+            'cases_w',
+            'cases_pop_w',
+            'moving4w_pop',
+            'moving8w_pop',
+            'cumulated_pop_w',
+        ]
 
         # Loop through columns and fill them
         for fill_col in no_data:
@@ -430,7 +509,11 @@ def export_data(covid_calc, filename_suffix='', xls=False):
     print("\nStart export.")
 
     # Define string to be added to file name if data is limited to certain time frame
-    limit = ('_' + str(conf['data_start']) + '_' + str(conf['data_end'])) if conf['limit_dates'] else ''
+    limit = (
+        ('_' + str(conf['data_start']) + '_' + str(conf['data_end']))
+        if conf['limit_dates']
+        else ''
+    )
 
     # Define file name and export data to CSV
     file = 'data/covid-waves-data-clean' + str(filename_suffix) + limit + '.csv'

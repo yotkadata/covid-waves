@@ -24,13 +24,13 @@ def custom_template():
         'layout': go.Layout(
             font={
                 'family': 'Lato',
-                'size': 12*factor,
+                'size': 12 * factor,
                 'color': '#1f1f1f',
             },
             title={
                 'font': {
                     'family': 'Lato',
-                    'size': 24*factor,
+                    'size': 24 * factor,
                     'color': '#1f1f1f',
                 },
             },
@@ -57,14 +57,20 @@ def calc_quantiles(df_q, column_q, normalized=True, base=5):
             breaks_q[steps[step]] = round(df_q[column_q].quantile(steps[step]))
         # Round to next base for higher values
         if (1.5 * base) <= breaks_q[steps[step]] < (10 * base):
-            breaks_q[steps[step]] = base * round(df_q[column_q].quantile(steps[step]) / base)
+            breaks_q[steps[step]] = base * round(
+                df_q[column_q].quantile(steps[step]) / base
+            )
         # Round to twice the base for very high values
         if breaks_q[steps[step]] >= 10 * base:
-            breaks_q[steps[step]] = (2 * base) * round(df_q[column_q].quantile(steps[step]) / (2 * base))
+            breaks_q[steps[step]] = (2 * base) * round(
+                df_q[column_q].quantile(steps[step]) / (2 * base)
+            )
 
         # Normalize to values between 0 and 1 if selected
         if normalized:
-            breaks_q[steps[step]] = (breaks_q[steps[step]] / df_q[column_q].max()).round(3)
+            breaks_q[steps[step]] = (
+                breaks_q[steps[step]] / df_q[column_q].max()
+            ).round(3)
 
     return breaks_q
 
@@ -97,17 +103,22 @@ def import_covid_data():
     print("\nStarting import of CSV file.")
 
     # Define string to be added to fór weekly metrics
-    append = '-weekly' if conf['metric'] in ['cases_pop_weekly', 'moving4w_pop', 'moving8w_pop'] else ''
+    append = (
+        '-weekly'
+        if conf['metric'] in ['cases_pop_weekly', 'moving4w_pop', 'moving8w_pop']
+        else ''
+    )
 
     # Define file name to be imported
     file = 'data/covid-waves-data-clean' + append + '.csv'
 
     # Import CSV
-    df_raw = pd.read_csv(file,
-                         parse_dates=['date'],
-                         usecols=['country', 'nuts_id', 'nuts_name', 'date', conf['metric']],
-                         header=0,
-                         )
+    df_raw = pd.read_csv(
+        file,
+        parse_dates=['date'],
+        usecols=['country', 'nuts_id', 'nuts_name', 'date', conf['metric']],
+        header=0,
+    )
 
     print("File imported:", file)
 
@@ -129,7 +140,9 @@ def plot_images(df, df_raw, filepath_dt):
     geo_nuts_level3, geo_countries = import_geojson()
 
     # Create folder
-    export_path = pathlib.Path('export/image/' + str(filepath_dt.strftime('%Y%m%d-%H%M%S')))
+    export_path = pathlib.Path(
+        'export/image/' + str(filepath_dt.strftime('%Y%m%d-%H%M%S'))
+    )
     export_path.mkdir(parents=True, exist_ok=True)
 
     image_files = []
@@ -157,24 +170,26 @@ def plot_images(df, df_raw, filepath_dt):
     df_plot = df[df['date'] == dates[0]].sort_values(['nuts_id', 'date'])
 
     # Start plotting constructing the map used for all images
-    fig = go.Figure(go.Choroplethmapbox(
-        geojson=geo_nuts_level3,
-        locations=df_plot['nuts_id'],
-        z=df_plot[conf['metric']],
-        zmin=0,
-        zmax=df_breaks[conf['metric']].max(),
-        colorscale=[
-            [0, conf['colors'][0]],
-            [breaks[0.2], conf['colors'][1]],
-            [breaks[0.4], conf['colors'][2]],
-            [breaks[0.6], conf['colors'][3]],
-            [breaks[0.8], conf['colors'][4]],
-            [breaks[0.9], conf['colors'][5]],
-            [breaks[0.95], conf['colors'][6]],
-            [breaks[0.99], conf['colors'][7]],
-            [1, conf['colors'][8]]
-        ],
-    ))
+    fig = go.Figure(
+        go.Choroplethmapbox(
+            geojson=geo_nuts_level3,
+            locations=df_plot['nuts_id'],
+            z=df_plot[conf['metric']],
+            zmin=0,
+            zmax=df_breaks[conf['metric']].max(),
+            colorscale=[
+                [0, conf['colors'][0]],
+                [breaks[0.2], conf['colors'][1]],
+                [breaks[0.4], conf['colors'][2]],
+                [breaks[0.6], conf['colors'][3]],
+                [breaks[0.8], conf['colors'][4]],
+                [breaks[0.9], conf['colors'][5]],
+                [breaks[0.95], conf['colors'][6]],
+                [breaks[0.99], conf['colors'][7]],
+                [1, conf['colors'][8]],
+            ],
+        )
+    )
 
     fig.update_layout(
         height=conf['height'],
@@ -182,24 +197,29 @@ def plot_images(df, df_raw, filepath_dt):
         xaxis_autorange=False,
         yaxis_autorange=False,
         mapbox={
-            'center': {'lat': 57.245936, 'lon': 9.274491},  # Set center coordinates of the map
+            # Set center coordinates of the map
+            'center': {
+                'lat': 57.245936,
+                'lon': 9.274491,
+            },
             'style': conf['basemap'],
             'zoom': zoom,
+            # Add country borders as thin lines
             'layers': [
                 {
-                    'name': 'country_borders',  # Add country borders as thin lines
+                    'name': 'country_borders',
                     'source': geo_countries,
                     'type': 'line',
                     'color': '#ccc',
                     'opacity': 0.3,
-                    'line': {'width': 1 * factor}
+                    'line': {'width': factor},
                 },
             ],
         },
         margin={'r': 3, 't': 3, 'l': 3, 'b': 3},
         template=custom_template(),
         title_text='<b>COVID-19 waves in Europe</b><br />'
-                   '<sup>' + conf['metric_desc'][conf['metric']] + '</sup>',
+        '<sup>' + conf['metric_desc'][conf['metric']] + '</sup>',
         title_x=0.01,
         title_y=0.96,
         coloraxis_colorbar=dict(title=''),
@@ -211,10 +231,10 @@ def plot_images(df, df_raw, filepath_dt):
                 y=0,
                 showarrow=False,
                 text='<b>Data:</b> COVID19-European-Regional-Tracker/Eurostat, '
-                     '<b>Graph:</b> Jan Kühn (https://yotka.org), '
-                     '<b>License:</b> CC by-nc-sa 4.0',
+                '<b>Graph:</b> Jan Kühn (https://yotka.org), '
+                '<b>License:</b> CC by-nc-sa 4.0',
             ),
-        ]
+        ],
     )
 
     fig.update_traces(
@@ -236,17 +256,19 @@ def plot_images(df, df_raw, filepath_dt):
         # Create shapes
         for color in conf['colors']:
             # https://plotly.com/python/reference/layout/shapes/
-            fig.add_shape(go.layout.Shape(
-                type='rect',
-                fillcolor=color,
-                xref='paper',
-                yref='paper',
-                x0=left,
-                y0=top - i * height,
-                x1=left - width,
-                y1=top - (i + 1) * height,
-                line=dict(width=0),
-            ))
+            fig.add_shape(
+                go.layout.Shape(
+                    type='rect',
+                    fillcolor=color,
+                    xref='paper',
+                    yref='paper',
+                    x0=left,
+                    y0=top - i * height,
+                    x1=left - width,
+                    y1=top - (i + 1) * height,
+                    line=dict(width=0),
+                )
+            )
             i += 1
 
         # Create annotations using not normalized break points
@@ -258,16 +280,18 @@ def plot_images(df, df_raw, filepath_dt):
             text = 'No data' if breaks_legend[step] == -1 else breaks_legend[step]
 
             # https://plotly.com/python/reference/layout/annotations/
-            fig.add_annotation(dict(
-                xref='paper',
-                yref='paper',
-                yanchor='middle',
-                xanchor='right',
-                x=left - width - 0.005,
-                y=center - i * height,
-                showarrow=False,
-                text=text,
-            ))
+            fig.add_annotation(
+                dict(
+                    xref='paper',
+                    yref='paper',
+                    yanchor='middle',
+                    xanchor='right',
+                    x=left - width - 0.005,
+                    y=center - i * height,
+                    showarrow=False,
+                    text=text,
+                )
+            )
             i += 1
 
     print("Created basic map for all images.")
@@ -310,7 +334,7 @@ def plot_images(df, df_raw, filepath_dt):
                     showarrow=False,
                     text='<b>' + str(date.strftime('%d.%m.%Y')) + '</b>',
                     font={
-                        'size': 24*factor,
+                        'size': 24 * factor,
                     },
                 ),
             )
@@ -319,12 +343,20 @@ def plot_images(df, df_raw, filepath_dt):
         if date != dates[0]:
 
             # Calculate date of the day before current date (day one week ago for weekly metrics)
-            time_diff = 7 if conf['metric'] in ['cases_pop_weekly', 'moving4w_pop', 'moving8w_pop'] else 1
-            selector = (pd.to_datetime(date) - dt.timedelta(days=time_diff)).strftime('%d.%m.%Y')
+            time_diff = (
+                7
+                if conf['metric']
+                in ['cases_pop_weekly', 'moving4w_pop', 'moving8w_pop']
+                else 1
+            )
+            selector = (pd.to_datetime(date) - dt.timedelta(days=time_diff)).strftime(
+                '%d.%m.%Y'
+            )
 
             # Update annotation showing current date
             fig.update_annotations(
-                selector={'text': '<b>' + selector + '</b>'},  # Select the right annotation to update
+                # Select the right annotation to update
+                selector={'text': '<b>' + selector + '</b>'},
                 text='<b>' + str(date.strftime('%d.%m.%Y')) + '</b>',
                 y=date_position,
             )
@@ -336,9 +368,7 @@ def plot_images(df, df_raw, filepath_dt):
         if last_run:
             fig.add_annotation(
                 dict(
-                    font=dict(
-                        size=24*factor,
-                    ),
+                    font=dict(size=24 * factor),
                     x=0.99,
                     y=0.01,
                     showarrow=False,
@@ -352,12 +382,10 @@ def plot_images(df, df_raw, filepath_dt):
             )
 
         # Define file path and name
-        file = str(export_path) + '/' + \
-               date.strftime('%Y-%m-%d') + '-' + \
-               conf['resolution'] + '-' + \
-               conf['metric'] + '-' + \
-               str(conf['width']) + 'px' + \
-               '.' + conf['image_format']
+        file = (
+            f"{export_path}/{date.strftime('%Y-%m-%d')}-"
+            f"{conf['resolution']}-{conf['metric']}-{conf['width']}px.{conf['image_format']}"
+        )
 
         # Write map to image file
         fig.write_image(file, width=conf['width'], height=conf['height'], scale=1)
@@ -369,19 +397,26 @@ def plot_images(df, df_raw, filepath_dt):
         dates_processed += 1
         duration = time.time() - time_start
         duration_total = duration_total + duration
-        duration_left = (duration_total / dates_processed) * (len(dates) - dates_processed)
+        duration_left = (duration_total / dates_processed) * (
+            len(dates) - dates_processed
+        )
 
-        print(f"Output saved to {file} (duration: {round(duration, 1)} seconds) "
-              f"{dates_processed} of {len(dates)} "
-              f"({round(dates_processed / len(dates) * 100, 2)}%) "
-              f"left: ~{dt.timedelta(seconds=round(duration_left, 0))}")
+        print(
+            f"Output saved to {file} (duration: {round(duration, 1)} seconds) "
+            f"{dates_processed} of {len(dates)} "
+            f"({round(dates_processed / len(dates) * 100, 2)}%) "
+            f"left: ~{dt.timedelta(seconds=round(duration_left, 0))}"
+        )
 
     print("\nAll images saved.")
 
     # Create animation
     if conf['animation']:
-        stitch_animation(image_files, filepath_dt=filepath_dt,
-                         params=[conf['resolution'], conf['metric'], str(conf['width']) + 'px'])
+        stitch_animation(
+            image_files,
+            filepath_dt=filepath_dt,
+            params=[conf['resolution'], conf['metric'], str(conf['width']) + 'px'],
+        )
 
     return dates_processed
 
@@ -403,9 +438,14 @@ def animation_prepare_list(searchpath=conf['manual_path']):
 #
 # Function to stitch images to get an animation
 #
-def stitch_animation(file_list, animation_format=conf['animation_format'],
-                     fps=conf['animation_fps'], loop=conf['animation_loops'],
-                     filepath_dt=None, params=None):
+def stitch_animation(
+    file_list,
+    animation_format=conf['animation_format'],
+    fps=conf['animation_fps'],
+    loop=conf['animation_loops'],
+    filepath_dt=None,
+    params=None,
+):
 
     print("\nStarting to stitch images together for an animation.")
 
@@ -435,11 +475,17 @@ def stitch_animation(file_list, animation_format=conf['animation_format'],
         file_params = ''
 
     # Create path and file name for animation
-    anim_path = str(anim_path) + '/' + \
-                str(filepath_dt.strftime('%Y%m%d-%H%M%S')) + \
-                '-anim' + file_params + \
-                '-fps' + str(fps) + \
-                '.' + animation_format
+    anim_path = (
+        str(anim_path)
+        + '/'
+        + str(filepath_dt.strftime('%Y%m%d-%H%M%S'))
+        + '-anim'
+        + file_params
+        + '-fps'
+        + str(fps)
+        + '.'
+        + animation_format
+    )
 
     images = []
     image_count = 0
@@ -470,8 +516,16 @@ def stitch_animation(file_list, animation_format=conf['animation_format'],
         fps_to_duration = int(round(1 / fps * 1000, 0))
 
         # Create animation
-        img.save(anim_path, save_all=True, append_images=images[1:], duration=fps_to_duration, loop=loop,
-                 optimize=False, disposal=2, lossless=True)
+        img.save(
+            anim_path,
+            save_all=True,
+            append_images=images[1:],
+            duration=fps_to_duration,
+            loop=loop,
+            optimize=False,
+            disposal=2,
+            lossless=True,
+        )
 
     print("Animation saved to", anim_path)
 
@@ -517,7 +571,7 @@ def plot_html(df, df_raw):
             [breaks[0.9], conf['colors'][5]],
             [breaks[0.95], conf['colors'][6]],
             [breaks[0.99], conf['colors'][7]],
-            [1, conf['colors'][8]]
+            [1, conf['colors'][8]],
         ],
         mapbox_style=conf['basemap'],
         center={'lat': 57.245936, 'lon': 9.274491},
@@ -531,7 +585,7 @@ def plot_html(df, df_raw):
 
     fig.update_layout(
         title_text='<b>COVID-19 waves in Europe</b><br />'
-                   '<sup>' + conf['metric_desc'][conf['metric']] + '</sup>',
+        '<sup>' + conf['metric_desc'][conf['metric']] + '</sup>',
         title_x=0.01,
         title_y=0.96,
         margin={'r': 0, 't': 0, 'l': 0, 'b': 0},
@@ -545,9 +599,10 @@ def plot_html(df, df_raw):
                 y=0,
                 showarrow=False,
                 text='<b>Data:</b> COVID19-European-Regional-Tracker/Eurostat, '
-                     '<b>Graph:</b> Jan Kühn (https://yotka.org), '
-                     '<b>License:</b> CC by-nc-sa 4.0',
-            )]
+                '<b>Graph:</b> Jan Kühn (https://yotka.org), '
+                '<b>License:</b> CC by-nc-sa 4.0',
+            )
+        ],
     )
 
     fig.update_traces(
