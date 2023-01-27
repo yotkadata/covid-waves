@@ -20,8 +20,8 @@ def main():
         covid_calc, covid_calc_weekly = prep.transform_data(covid_clean)
 
         # Export data
-        prep.export_data(covid_calc, filename='covid-waves-data-clean', xls=False)
-        prep.export_data(covid_calc_weekly, filename='covid-waves-data-clean-weekly', xls=True)
+        prep.export_data(covid_calc)
+        prep.export_data(covid_calc_weekly, filename_suffix='-weekly', xls=True)
 
     # Start performance measures
     conf = misc.conf_performance(conf)

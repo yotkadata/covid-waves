@@ -425,7 +425,7 @@ def transform_fill_no_data(covid_calc, period='daily'):
 #
 # Function to export dataframes to CSV file
 #
-def export_data(covid_calc, filename='covid-waves-data-clean', xls=False):
+def export_data(covid_calc, filename_suffix='', xls=False):
 
     print("\nStart export.")
 
@@ -433,14 +433,14 @@ def export_data(covid_calc, filename='covid-waves-data-clean', xls=False):
     limit = ('_' + str(conf['data_start']) + '_' + str(conf['data_end'])) if conf['limit_dates'] else ''
 
     # Define file name and export data to CSV
-    file = 'data/' + filename + limit + '.csv'
+    file = 'data/covid-waves-data-clean' + str(filename_suffix) + limit + '.csv'
     covid_calc.to_csv(file)
     print("File saved as", file)
 
     if xls:
 
         # Define file name and export data to Excel file
-        file = 'data/' + filename + limit + '.xlsx'
+        file = 'data/covid-waves-data-clean' + str(filename_suffix) + limit + '.xlsx'
         with pd.ExcelWriter(file) as writer:
             covid_calc.to_excel(writer, sheet_name='Data')
         print("File saved as", file)
