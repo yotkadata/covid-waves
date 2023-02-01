@@ -13,11 +13,11 @@ https://user-images.githubusercontent.com/7913590/189217513-43af5573-916c-4450-9
 
 For COVID-19 cases, I used data of the (great!) [**COVID19-European-Regional-Tracker**](https://github.com/asjadnaqvi/COVID19-European-Regional-Tracker). It's a project by [Asjad Naqvi](https://github.com/asjadnaqvi) that collected data from many sources and adapted them to Eurostat's geographic [**NUTS regions**](https://ec.europa.eu/eurostat/web/nuts/background) (the so-called "Nomenclature of territorial units for statistics" (NUTS)) in its 2016 version (why not 2021, you ask? [Read more here](https://github.com/asjadnaqvi/COVID19-European-Regional-Tracker#combining-data-across-countries)).
 
-## About the script(s)
+## About the script
 
-The main script `main.py` creates an animation of the data using Plotly Choropleth Mapbox and GeoJson files provided by Eurostat. The script allows to define different characteristics of the animation like time frame, metrics, speed (frames per second), map details etc. in the file `settings.py`.
+The script creates an animation of the data using Plotly Choropleth Mapbox and GeoJson files provided by Eurostat (see `includes/plot.py`). It allows to define different characteristics of the animation like time frame, metrics, speed (frames per second), map details etc. in the file `settings.py`.
 
-By default, the script uses a dataset that has already been cleaned by `update_data.py` (`data/covid-waves-data-clean.csv`). It cleans the COVID-19 data removing some extreme outliers and values below zero (both due to data corrections) and correcting some [erroneous dates](https://github.com/asjadnaqvi/COVID19-European-Regional-Tracker/issues/1) (years 2222 and 2121). It then adds missing dates for each NUTS region and interpolates missing values between known data points. In a last step before the export, different metrics are calculated both for daily data and for weekly aggregated data.
+The import, cleaning, and transformation of the data is done in `includes/prepare.py`. This includes removing some extreme outliers and values below zero (both due to data corrections). It then adds missing dates for each NUTS region and interpolates missing values between known data points. In a last step before the export, different metrics are calculated both for daily data and for weekly aggregated data.
 
 In `settings.py`, the cleaning process can be set to be repeated (setting: `update_data: True`). In that case, the original data in `data/european-regional-tracker.csv` is imported and cleaned as described above. If in that case `refresh_source` is set to `True`, the data is fetched from the COVID19-European-Regional-Tracker repository first.
 
