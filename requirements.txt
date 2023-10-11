@@ -1,7 +1,7 @@
 imageio==2.31.5
 kaleido==0.2.1
 openpyxl==3.1.2
-pandas==2.1.1
+pandas==1.4.4
 Pillow==10.0.1
 plotly==5.17.0
 requests==2.31.0
